@@ -3,30 +3,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-// Extends GrabFreeTransformer to keep tracking of grabbing state
-// public class GrabFreeTransformerEventBool : GrabFreeTransformer
-// {
-//     private bool grabbed = false;
-
-//     public new void BeginTransform()
-//     {
-//         // base.BeginTransform();
-//         grabbed = true;
-//         Debug.Log("called!");
-//     }
-
-//     public new void UpdateTransform() {}
-
-//     public new void EndTransform()
-//     {
-//         // base.EndTransform();
-//         grabbed = false;
-//     }
-
-//     public bool isGrabbed() { return grabbed; }
-// }
-
 public class GrabFreeTransformerEventBool : MonoBehaviour, ITransformer
 {
     private struct GrabPointDelta
@@ -128,6 +104,7 @@ public class GrabFreeTransformerEventBool : MonoBehaviour, ITransformer
     private Pose _grabDeltaInLocalSpace;
 
     private TransformerUtils.PositionConstraints _relativePositionConstraints;
+    private TransformerUtils.RotationConstraints _relativeRotationConstraints;
 
     private TransformerUtils.ScaleConstraints _relativeScaleConstraints;
 
@@ -142,6 +119,7 @@ public class GrabFreeTransformerEventBool : MonoBehaviour, ITransformer
     {
         _grabbable = grabbable;
         _relativePositionConstraints = TransformerUtils.GenerateParentConstraints(_positionConstraints, _grabbable.Transform.localPosition);
+        _relativeRotationConstraints = GenerateParentConstraints(_rotationConstraints, _grabbable.Transform.localRotation);
         _relativeScaleConstraints = TransformerUtils.GenerateParentConstraints(_scaleConstraints, _grabbable.Transform.localScale);
     }
 
@@ -163,6 +141,7 @@ public class GrabFreeTransformerEventBool : MonoBehaviour, ITransformer
 
         // Refresh constraint's initial position
         _relativePositionConstraints = TransformerUtils.GenerateParentConstraints(_positionConstraints, _grabbable.Transform.localPosition);
+        _relativeRotationConstraints = GenerateParentConstraints(_rotationConstraints, _grabbable.Transform.localRotation);
 
         grabbed = true;
     }
@@ -176,7 +155,7 @@ public class GrabFreeTransformerEventBool : MonoBehaviour, ITransformer
         transform.localScale = TransformerUtils.GetConstrainedTransformScale(_lastScale, _relativeScaleConstraints);
         _lastRotation = UpdateRotation(count) * _lastRotation;
         Quaternion unconstrainedRotation = _lastRotation * _grabDeltaInLocalSpace.rotation;
-        transform.rotation = TransformerUtils.GetConstrainedTransformRotation(unconstrainedRotation, _rotationConstraints, transform.parent);
+        transform.rotation = TransformerUtils.GetConstrainedTransformRotation(unconstrainedRotation, _relativeRotationConstraints, transform.parent);
         Vector3 unconstrainedPosition = vector - transform.TransformVector(_grabDeltaInLocalSpace.position);
         transform.position = TransformerUtils.GetConstrainedTransformPosition(unconstrainedPosition, _relativePositionConstraints, transform.parent);
     }
@@ -276,6 +255,38 @@ public class GrabFreeTransformerEventBool : MonoBehaviour, ITransformer
     {
         _scaleConstraints = constraints;
     }
+
+    TransformerUtils.RotationConstraints GenerateParentConstraints(TransformerUtils.RotationConstraints constraints, Quaternion initialRotation)
+{
+    TransformerUtils.RotationConstraints rotationConstraints;
+    rotationConstraints = new TransformerUtils.RotationConstraints();
+    rotationConstraints.XAxis = default(TransformerUtils.ConstrainedAxis);
+    rotationConstraints.YAxis = default(TransformerUtils.ConstrainedAxis);
+    rotationConstraints.ZAxis = default(TransformerUtils.ConstrainedAxis);
+    Vector3 eulerAngles = initialRotation.eulerAngles;
+    if (constraints.XAxis.ConstrainAxis)
+    {
+        rotationConstraints.XAxis.ConstrainAxis = true;
+        rotationConstraints.XAxis.AxisRange.Min = constraints.XAxis.AxisRange.Min * eulerAngles.x;
+        rotationConstraints.XAxis.AxisRange.Max = constraints.XAxis.AxisRange.Max * eulerAngles.x;
+    }
+
+    if (constraints.YAxis.ConstrainAxis)
+    {
+        rotationConstraints.YAxis.ConstrainAxis = true;
+        rotationConstraints.YAxis.AxisRange.Min = constraints.YAxis.AxisRange.Min * eulerAngles.y;
+        rotationConstraints.YAxis.AxisRange.Max = constraints.YAxis.AxisRange.Max * eulerAngles.y;
+    }
+
+    if (constraints.ZAxis.ConstrainAxis)
+    {
+        rotationConstraints.ZAxis.ConstrainAxis = true;
+        rotationConstraints.ZAxis.AxisRange.Min = constraints.ZAxis.AxisRange.Min * eulerAngles.z;
+        rotationConstraints.ZAxis.AxisRange.Max = constraints.ZAxis.AxisRange.Max * eulerAngles.z;
+    }
+
+    return rotationConstraints;
+}
 
     public bool isGrabbed() { return grabbed; }
 }

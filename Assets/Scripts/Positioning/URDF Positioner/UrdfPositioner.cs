@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace UrdfPositioning {
     public delegate void TransformDataCallback(TransformData data);
@@ -16,15 +17,30 @@ namespace UrdfPositioning {
         public GameObject urdfModel;
         public UrdfRayPositioner rayPositioner = new UrdfRayPositioner();
         public UrdfGizmoPositioner gizmoPositioner = new UrdfGizmoPositioner();
+
         private PositionState state = PositionState.Ray;
+
+        // Persistent across scenes
+        [HideInInspector]
+        public static TransformData robotOriginTransform;
+        private static Quaternion inverseOriginQuaternion;
+        private static bool invertedQuaternion = false;
+        public static Vector3 TransformFromRobotSpace(Vector3 vector) {
+            return robotOriginTransform.rotation * vector +
+                robotOriginTransform.position;
+        }
+
+        public static Vector3 TransformToRobotSpace(Vector3 vector) {
+            if (!invertedQuaternion) {
+                inverseOriginQuaternion = Quaternion.Inverse(robotOriginTransform.rotation);
+                invertedQuaternion = true;
+            }
+            return inverseOriginQuaternion * (vector - robotOriginTransform.position);
+        }
 
         // Start is called before the first frame update
         void Start()
         {
-            ArticulationBodiesEnabled bodiesEnabled;
-            if (urdfModel.TryGetComponent(out bodiesEnabled)) {
-                bodiesEnabled.SetEnabled(false);
-            }
             rayPositioner.Initialise(urdfModel, StartGizmoState);
         }
 
@@ -45,14 +61,10 @@ namespace UrdfPositioning {
 
         public void StartFixedState(TransformData data) {
             state = PositionState.Fixed;
-            urdfModel.SetActive(true);
-            urdfModel.transform.position = data.position;
-            urdfModel.transform.rotation = data.rotation;
+            urdfModel.SetActive(false);
+            robotOriginTransform = data;
 
-            ArticulationBodiesEnabled bodiesEnabled;
-            if (urdfModel.TryGetComponent(out bodiesEnabled)) {
-                bodiesEnabled.SetEnabled(true);
-            }
+            SceneManager.LoadSceneAsync(1, LoadSceneMode.Single);
         }
     }
 }

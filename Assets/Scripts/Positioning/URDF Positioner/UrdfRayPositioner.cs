@@ -34,8 +34,8 @@ namespace UrdfPositioning {
                 OVRInput.GetControllerPositionTracked(OVRInput.Controller.RTouch) &&
                 OVRInput.GetControllerOrientationTracked(OVRInput.Controller.RTouch)
             );
-            urdfModel.SetActive(false);
-            visibleRay.enabled = cast;
+            urdfModel.SetActive(true);
+            // visibleRay.enabled = cast;
             if (cast) {
                 Vector3 controllerPos = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
                 Vector3 controllerForward = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RTouch) *
@@ -48,13 +48,13 @@ namespace UrdfPositioning {
                     rayLength = hit.distance;
                     urdfModel.transform.position = hit.point;
                     urdfModel.transform.up = hit.normal;
-                    urdfModel.SetActive(true);
+                } else {
+                    urdfModel.SetActive(false);  // Set false here to allow urdfModel to update
                 }
 
                 // Render visible ray
                 Vector3 endPoint = controllerPos + rayLength * controllerForward;
                 visibleRay.positionCount = 2;
-                    new Vector3(0, 0, maxRayLength);
                 visibleRay.SetPosition(0, controllerPos);
                 visibleRay.SetPosition(1, endPoint);
 
@@ -64,6 +64,8 @@ namespace UrdfPositioning {
                     finaliseTransform(data);
                     visibleRay.enabled = false;
                 }
+            } else {
+                urdfModel.SetActive(false);  // Set false here to allow urdfModel to update
             }
         }
     }

@@ -21,6 +21,8 @@ namespace UrdfPositioning {
             gizmoSet.SetActive(true);
             gizmoSet.transform.position = data.position;
             urdfModel.transform.parent = gizmoSet.GetComponent<Repositioner>().objectHolder;
+
+            finaliseTransform = callback;
         }
 
         // To call every Update
