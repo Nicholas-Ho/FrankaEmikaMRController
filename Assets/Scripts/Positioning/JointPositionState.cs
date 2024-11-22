@@ -58,7 +58,7 @@ public class JointPositionState : MonoBehaviour
             } else {
                 newJointPos.x = -positions[i];
             }
-            if (i == 3) {
+            if (i == 3 || i == 5) {
                 newJointPos.y = 0; newJointPos.z = -90;
             }
             linkRefs[i].localEulerAngles = newJointPos;
