@@ -8,7 +8,7 @@ public class EndTracker : MonoBehaviour
 {
     ROSConnection ros;
 
-    public string subTopic = "/cartesian_impedance_example_controller/robot_current_pose";
+    public string subTopic = "/vmc_controller/robot_current_pose";
 
     private bool initialised = false;
 

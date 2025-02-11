@@ -9,6 +9,7 @@ namespace UrdfPositioning {
     {
         public GameObject gizmoSet;
 
+        private bool selected = false;
         private GameObject urdfModel;
         private TransformDataCallback finaliseTransform;  // Used when position of model is confirmed.
 
@@ -29,12 +30,17 @@ namespace UrdfPositioning {
         public void Update()
         {
             // Finalise position on "B" button press
-            if (OVRInput.GetDown(OVRInput.RawButton.B)) {
+            if (OVRInput.GetDown(OVRInput.RawButton.B) || selected) {
                 TransformData data = new TransformData(urdfModel.transform);
                 urdfModel.transform.parent = null;
                 gizmoSet.SetActive(false);
                 finaliseTransform(data);
             }
+        }
+
+        public void HandSelect()
+        {
+            selected = true;
         }
     }
 }

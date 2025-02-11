@@ -9,7 +9,7 @@ public class DigitalTwinManager : MonoBehaviour
 {
     ROSConnection ros;
 
-    public string topic = "/cartesian_impedance_example_controller/joint_positions";
+    public string topic = "/vmc_controller/joint_positions";
     public int numberOfJoints = 7;
     
     private float[] positions;

@@ -1,8 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Meta.WitAi;
-using Oculus.Platform;
 using UnityEngine;
 
 namespace UrdfPositioning {
@@ -13,6 +9,7 @@ namespace UrdfPositioning {
         public float maxRayLength = 2;
         public string layerName = "Room";
 
+        private bool selected = false;
         private GameObject urdfModel;
         private LayerMask collisionLayerMask;
         private TransformDataCallback finaliseTransform;  // Used when position of model is confirmed.
@@ -35,7 +32,7 @@ namespace UrdfPositioning {
                 OVRInput.GetControllerOrientationTracked(OVRInput.Controller.RTouch)
             );
             urdfModel.SetActive(true);
-            // visibleRay.enabled = cast;
+            visibleRay.enabled = cast;
             if (cast) {
                 Vector3 controllerPos = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
                 Vector3 controllerForward = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RTouch) *
@@ -59,7 +56,7 @@ namespace UrdfPositioning {
                 visibleRay.SetPosition(1, endPoint);
 
                 // Finalise position on "B" button press
-                if (OVRInput.GetDown(OVRInput.RawButton.B)) {
+                if (OVRInput.GetDown(OVRInput.RawButton.B) || selected) {
                     TransformData data = new TransformData(urdfModel.transform);
                     finaliseTransform(data);
                     visibleRay.enabled = false;
@@ -67,6 +64,11 @@ namespace UrdfPositioning {
             } else {
                 urdfModel.SetActive(false);  // Set false here to allow urdfModel to update
             }
+        }
+
+        public void HandSelect()
+        {
+            selected = true;
         }
     }
 }

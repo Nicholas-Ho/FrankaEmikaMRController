@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 namespace UrdfPositioning {
@@ -65,6 +66,15 @@ namespace UrdfPositioning {
             robotOriginTransform = data;
 
             SceneManager.LoadSceneAsync(1, LoadSceneMode.Single);
+        }
+
+        public void HandSelect()
+        {
+            if (state == PositionState.Ray) {
+                rayPositioner.HandSelect();
+            } else if (state == PositionState.Gizmo) {
+                gizmoPositioner.HandSelect();
+            }
         }
     }
 }
