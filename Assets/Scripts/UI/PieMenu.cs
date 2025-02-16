@@ -106,7 +106,7 @@ public class PieMenu : MonoBehaviour
             if (pinching) {
                 // Set position to hand
                 Vector3 headPos = GameObject.FindWithTag("MainCamera").transform.position;
-                Vector3 rightIndexPos = GetRightIndexTipTransform().position;
+                Vector3 rightIndexPos = HandUtilities.GetIndexTipTransform(handSkeleton).position;
                 transform.position = rightIndexPos;
                 transform.LookAt(headPos);
 
@@ -141,8 +141,8 @@ public class PieMenu : MonoBehaviour
 
     private int GetHoverOption()
     {
-        Vector3 rightIndexPos = GetRightIndexTipTransform().position;
-        Vector3 relativePos = GetRelativeProjected(rightIndexPos, transform.forward, transform.position);
+        Vector3 rightIndexPos = HandUtilities.GetIndexTipTransform(handSkeleton).position;
+        Vector3 relativePos = HandUtilities.GetRelativePlaneProjected(rightIndexPos, transform.forward, transform.position);
         
         // Check for cancel
         if (relativePos.magnitude <= cancelRadius) return -1;
@@ -159,24 +159,6 @@ public class PieMenu : MonoBehaviour
             }
         }
         return nearest;
-    }
-
-    private Vector3 GetRelativeProjected(Vector3 position, Vector3 normal, Vector3 reference)
-    {
-        // Vector3 is a struct - pass by value. OK to modify
-        position -= reference;
-        return Vector3.ProjectOnPlane(position, normal);
-    }
-
-    private Transform GetRightIndexTipTransform()
-    {
-        foreach (var b in handSkeleton.Bones) {
-            if (b.Id == OVRSkeleton.BoneId.Hand_IndexTip) {
-                return b.Transform;
-            }
-        }
-        Debug.LogWarning("Right index finger not found");
-        return transform;
     }
 
     private void SetVisibility(bool _visible)

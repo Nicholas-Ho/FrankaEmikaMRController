@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Robotics.ROSTCPConnector;
 using RosMessageTypes.Geometry;
+using RosMessageTypes.Std;
 using UrdfPositioning;
 using System;
 
@@ -8,8 +9,10 @@ public class EndTarget : MonoBehaviour
 {
     ROSConnection ros;
 
-    public string subTopic = "/vmc_controller/robot_current_pose";
-    public string pubTopic = "/vmc_controller/equilibrium_pose";
+    public string subTopic = "/robot_current_pose";
+    public string pubTopic = "/target_data";
+    public float springStiffness = 100;
+    public float damperStrength = 5;
 
     QuaternionMsg orientation;
     private bool initialised = false;
@@ -26,16 +29,15 @@ public class EndTarget : MonoBehaviour
     {
         if (!initialised) Initialise();
         if (initialised && initialPositionSet) {
-            PoseStampedMsg msg = new PoseStampedMsg();
             Vector3 robotOriginTransform = UrdfPositioner.TransformToRobotSpace(transform.position);
-            msg.pose.position.x = robotOriginTransform.z;
-            msg.pose.position.y = -robotOriginTransform.x;
-            msg.pose.position.z = robotOriginTransform.y;
-            msg.pose.orientation = orientation;  // Not dealing with orientation for now
-            msg.header.frame_id = "panda_link0";
-
-            TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
-            msg.header.stamp.sec = (uint)t.TotalSeconds;
+            Float64MultiArrayMsg msg = new Float64MultiArrayMsg();
+            msg.data = new double[]{
+                robotOriginTransform.z,
+                -robotOriginTransform.x,
+                robotOriginTransform.y,
+                springStiffness,
+                damperStrength
+            };
 
             ros.Publish(pubTopic, msg);
         }
@@ -45,7 +47,26 @@ public class EndTarget : MonoBehaviour
     {
         // Initialise ROS
         ros = ROSConnection.GetOrCreateInstance();
-        ros.RegisterPublisher<PoseStampedMsg>(pubTopic);
+        ros.Subscribe<PoseStampedMsg>(subTopic, SubscribeCallback);
+        ros.RegisterPublisher<Float64MultiArrayMsg>(pubTopic);
         initialised = true;
+    }
+
+    void SubscribeCallback(PoseStampedMsg msg)
+    {
+        if (!initialPositionSet) {
+            Vector3 position = new Vector3(
+                (float)-msg.pose.position.y,  // Note: Swapped around x and y
+                (float)msg.pose.position.z,
+                (float)msg.pose.position.x);
+            transform.position = UrdfPositioner.TransformFromRobotSpace(position);
+            orientation = msg.pose.orientation;
+            initialPositionSet = true;
+        }
+    }
+
+    public bool IsReady()
+    {
+        return initialPositionSet;
     }
 }

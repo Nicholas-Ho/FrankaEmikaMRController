@@ -17977,9 +17977,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f97bcca8974e4a34cacb8e2c606cac79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  subTopic: /cartesian_impedance_example_controller/robot_current_pose
-  pubTopic: /cartesian_impedance_example_controller/equilibrium_pose
+  subTopic: /robot_current_pose
+  pubTopic: /target_data
   waypointPrefab: {fileID: 2366992338825510746, guid: 11ec6e18f2e854b4ab02e181a50ca0f6,
+    type: 3}
+  dynamicLinePrefab: {fileID: 10895854715673572, guid: 7dffc8fa5676d7649a25c148211c2de5,
     type: 3}
 --- !u!1 &1896603443
 GameObject:

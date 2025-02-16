@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using Unity.Robotics.ROSTCPConnector;
-using RosMessageTypes.FrankaExampleControllers;
+using RosMessageTypes.Sensor;
 
 public class DigitalTwinManager : MonoBehaviour
 {
     ROSConnection ros;
 
-    public string topic = "/vmc_controller/joint_positions";
+    public string topic = "/joint_states";
     public int numberOfJoints = 7;
-    
+
     private float[] positions;
     private bool initialised = false;
     private JointPositionState jointSetter;
@@ -39,15 +39,15 @@ public class DigitalTwinManager : MonoBehaviour
 
         // Initialise ROS
         ros = ROSConnection.GetOrCreateInstance();
-        ros.Subscribe<JointPositionsMsg>(topic, SubscribeCallback);
+        ros.Subscribe<JointStateMsg>(topic, SubscribeCallback);
 
         initialised = true;
     }
 
-    public void SubscribeCallback(JointPositionsMsg msg)
+    public void SubscribeCallback(JointStateMsg msg)
     {
         for (int i=0; i<numberOfJoints; i++) {
-            positions[i] = RadiansToDegrees(msg.positions[i]);
+            positions[i] = RadiansToDegrees(msg.position[i]);
         }
     }
 

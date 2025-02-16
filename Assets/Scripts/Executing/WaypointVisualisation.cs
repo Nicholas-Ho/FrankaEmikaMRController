@@ -6,13 +6,13 @@ using UnityEngine;
 public class WaypointVisualisation : MonoBehaviour
 {
     public GameObject staticWaypointPrefab;
-    private static List<Vector3> waypoints =  new List<Vector3>();
+    public GameObject linePrefab;
     private static List<GameObject> waypointObjects = new List<GameObject>();
 
     // Start is called before the first frame update
     void Start()
     {
-        waypoints = WalkthroughManager.waypoints;
+        List<Vector3> waypoints = WalkthroughManager.waypoints;
         for (int i=0; i<waypoints.Count; i++) {
             GameObject waypointObject = Instantiate(staticWaypointPrefab,
                                                     waypoints[i],
@@ -21,11 +21,13 @@ public class WaypointVisualisation : MonoBehaviour
             waypointObjects.Add(waypointObject);
             waypointObject.transform.SetParent(transform);
         }
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        for (int i=0; i<waypoints.Count-1; i++) {
+            GameObject line = Instantiate(linePrefab);
+            line.transform.SetParent(transform);
+            LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
+            lineRenderer.SetPosition(0, waypoints[i]);
+            lineRenderer.SetPosition(1, waypoints[i+1]);
+        }
     }
 }
