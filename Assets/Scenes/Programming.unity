@@ -17983,6 +17983,8 @@ MonoBehaviour:
     type: 3}
   dynamicLinePrefab: {fileID: 10895854715673572, guid: 7dffc8fa5676d7649a25c148211c2de5,
     type: 3}
+  waypointObjects: []
+  lineObjects: []
 --- !u!1 &1896603443
 GameObject:
   m_ObjectHideFlags: 0
@@ -20991,7 +20993,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
         type: 3}
+      propertyPath: pieMenuOptions.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
       propertyPath: pieMenuOptions.Array.data[2].callback.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
+      propertyPath: pieMenuOptions.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
@@ -21001,7 +21013,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
         type: 3}
+      propertyPath: pieMenuOptions.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
       propertyPath: pieMenuOptions.Array.data[2].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
+      propertyPath: pieMenuOptions.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
@@ -21011,7 +21033,17 @@ PrefabInstance:
       objectReference: {fileID: 1894974381}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
         type: 3}
+      propertyPath: pieMenuOptions.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1894974381}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
       propertyPath: pieMenuOptions.Array.data[2].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1894974381}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
+      propertyPath: pieMenuOptions.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1894974381}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
@@ -21021,7 +21053,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
         type: 3}
+      propertyPath: pieMenuOptions.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
       propertyPath: pieMenuOptions.Array.data[2].callback.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
+      propertyPath: pieMenuOptions.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
@@ -21031,12 +21073,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
         type: 3}
+      propertyPath: pieMenuOptions.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: RedoCommand
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
       propertyPath: pieMenuOptions.Array.data[2].callback.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: BeginExecutionPhase
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
         type: 3}
+      propertyPath: pieMenuOptions.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: UndoCommand
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
       propertyPath: pieMenuOptions.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: WalkthroughManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
+      propertyPath: pieMenuOptions.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: WalkthroughManager, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
@@ -21046,12 +21103,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
         type: 3}
+      propertyPath: pieMenuOptions.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: WalkthroughManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
       propertyPath: pieMenuOptions.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
         type: 3}
+      propertyPath: pieMenuOptions.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
       propertyPath: pieMenuOptions.Array.data[2].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
+      propertyPath: pieMenuOptions.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 7058985754139951555, guid: d2624932b65be1f419b825d818908671,

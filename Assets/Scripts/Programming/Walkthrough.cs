@@ -16,12 +16,17 @@ public class WalkthroughManager : MonoBehaviour
     public string pubTopic = "/target_data";
     public GameObject waypointPrefab;
     public GameObject dynamicLinePrefab;
-    private List<GameObject> waypointObjects =  new List<GameObject>();
-    private List<GameObject> lineObjects = new List<GameObject>();
+    [HideInInspector]
+    public List<GameObject> waypointObjects =  new List<GameObject>();
+    [HideInInspector]
+    public List<GameObject> lineObjects = new List<GameObject>();
     private bool initialised = false;
     private bool connected = false;
     private bool zeroSpring = false;
     private Vector3 position = Vector3.zero;
+
+    private Stack<IWaypointCommand> commands = new Stack<IWaypointCommand>();
+    private Stack<IWaypointCommand> undoneCommands = new Stack<IWaypointCommand>();  // Stack for undone commands. Cleared on new command added.
 
     // Persistent across scenes
     [HideInInspector]
@@ -34,7 +39,7 @@ public class WalkthroughManager : MonoBehaviour
 
         // For reloading the programming scene
         foreach (Vector3 waypointPos in waypoints) {
-            ConstructWaypoint(waypointPos);
+            AddCommand(new AppendWaypointCommand(waypointPos, this), true);
         }
         waypoints = new List<Vector3>();
     }
@@ -78,58 +83,14 @@ public class WalkthroughManager : MonoBehaviour
     {
         if (!initialised) return ;
 
-        // Add waypoint object
-        ConstructWaypoint(position);
+        // Add waypoint object at the robot position
+        // AddCommand(new AppendWaypointCommand(position, this));
+        AddCommand(new AppendWaypointCommand(new Vector3(0,1,0), this));
     }
 
-    private void ConstructWaypoint(Vector3 waypointPos)
+    public void DeleteWaypoint(int index)
     {
-        // Add waypoint object
-        GameObject waypoint = Instantiate(waypointPrefab, waypointPos, Quaternion.identity);
-        waypoint.transform.SetParent(transform);
-        waypoint.GetComponent<Waypoint>().SetIndex(waypointObjects.Count);
-
-        // Add delete callback
-        waypoint.GetComponentInChildren<ProximityButton>().callback.AddListener(
-            (BaseEventData eventData) => { Debug.Log(waypoint.GetComponent<Waypoint>().GetIndex()); DeleteWaypoint(waypoint.GetComponent<Waypoint>().GetIndex()); });
-
-        // If there is already a waypoint, draw a dynamic line
-        if (waypointObjects.Count > 0) {
-            GameObject line = Instantiate(dynamicLinePrefab);
-            line.transform.SetParent(transform);
-            DynamicLine dynamicLine = line.GetComponent<DynamicLine>();
-            dynamicLine.ref1 = waypointObjects[waypointObjects.Count-1];
-            dynamicLine.ref2 = waypoint;
-            lineObjects.Add(line);
-        }
-
-        // Add waypoint to list
-        waypointObjects.Add(waypoint);
-    }
-
-    private void DeleteWaypoint(int index)
-    {
-        if (index >= waypointObjects.Count) {
-            Debug.LogWarning("Index out-of-range. No waypoints deleted.");
-            return ;
-        }
-
-        // Shift waypoints one index forward
-        for (int i=index; i<(waypointObjects.Count-1); i++) {
-            waypointObjects[i].transform.position = waypointObjects[i+1].transform.position;
-            waypointObjects[i].transform.rotation = waypointObjects[i+1].transform.rotation;
-            waypointObjects[i].GetComponentInChildren<ProximityButton>().ResetState();
-        }
-
-        // Remove last waypoint and line
-        if (lineObjects.Count > 0) {
-            GameObject lastLine = lineObjects[lineObjects.Count-1];
-            lineObjects.RemoveAt(lineObjects.Count-1);
-            Destroy(lastLine);
-        }
-        GameObject lastWaypoint = waypointObjects[waypointObjects.Count-1];
-        waypointObjects.RemoveAt(waypointObjects.Count-1);
-        Destroy(lastWaypoint);
+        AddCommand(new DeleteWaypointCommand(index, this));
     }
 
     public void BeginExecutionPhase()
@@ -141,5 +102,33 @@ public class WalkthroughManager : MonoBehaviour
         }
 
         SceneManager.LoadSceneAsync(2, LoadSceneMode.Single);
+    }
+
+
+    // Commands infrastructure
+    private void AddCommand(IWaypointCommand command, bool skipStack = false)
+    {
+        command.Execute();
+        if (skipStack) return ;  // Option to skip using the command stack
+        commands.Push(command);
+        if (undoneCommands.Count > 0) undoneCommands.Clear();
+    }
+
+    public void UndoCommand()
+    {
+        if (commands.Count == 0) return ;
+        IWaypointCommand command = commands.Peek();
+        command.Unexecute();
+        commands.Pop();
+        undoneCommands.Push(command);
+    }
+
+    public void RedoCommand()
+    {
+        if (undoneCommands.Count == 0) return ;
+        IWaypointCommand command = undoneCommands.Peek();
+        command.Execute();
+        undoneCommands.Pop();
+        commands.Push(command);
     }
 }
