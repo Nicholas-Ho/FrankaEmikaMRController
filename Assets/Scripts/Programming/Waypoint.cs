@@ -11,6 +11,8 @@ public class Waypoint : MonoBehaviour
     private GameObject textObject;
     private Transform grabTransform;
     private ProximityButton deleteButton;
+    [HideInInspector]
+    public GrabFreeTransformerTracking transformer { get; private set; }
     private TextMeshPro tmp;
     private string text = "";
     private int index = -1;
@@ -21,6 +23,7 @@ public class Waypoint : MonoBehaviour
         tmp = textObject.GetComponentInChildren<TextMeshPro>();
         if (!staticWaypoint) {
             grabTransform = transform.Find("GrabbableSphere");
+            transformer = GetComponentInChildren<GrabFreeTransformerTracking>();
             deleteButton = GetComponentInChildren<ProximityButton>();
         }
     }
@@ -54,10 +57,16 @@ public class Waypoint : MonoBehaviour
     
     public int GetIndex() { return index; }
 
-    public void SetButtonCallback(UnityAction<BaseEventData> buttonCallback)
+    public void SetButtonCallback(UnityAction<BaseEventData> action)
     {
         deleteButton = GetComponentInChildren<ProximityButton>();
-        deleteButton.callback.AddListener(buttonCallback);
+        deleteButton.callback.AddListener(action);
+    }
+
+    public void SetMoveCallback(UnityAction<BaseEventData> action)
+    {
+        transformer = GetComponentInChildren<GrabFreeTransformerTracking>();
+        transformer.AddCallbackListener(action);
     }
 
     public void ResetButtonState() { deleteButton.ResetState(); }

@@ -37,6 +37,7 @@ struct InsertWaypointCommand : IWaypointCommand
         // Defaults
         rotation = Quaternion.identity;
     }
+
     public void Execute()
     {
         WaypointCommandUtilities.InsertWaypointAtIndex(index, position, rotation, manager);
@@ -62,6 +63,7 @@ struct DeleteWaypointCommand : IWaypointCommand
         position = Vector3.zero;
         rotation = Quaternion.identity;
     }
+
     public void Execute()
     {
         WaypointCommandUtilities.DeleteWaypointAtIndex(index, ref position, ref rotation, manager);
@@ -73,6 +75,33 @@ struct DeleteWaypointCommand : IWaypointCommand
     }
 }
 
+struct MoveWaypointCommand : IWaypointCommand
+{
+    private int index;
+    private Vector3 startPosition;
+    private Quaternion startRotation;
+    private Vector3 endPosition;
+    private Quaternion endRotation;
+    private WalkthroughManager manager;
+    public MoveWaypointCommand(int i, Vector3 startPos, Quaternion startRot, Vector3 endPos, Quaternion endRot, WalkthroughManager wm) {
+        index = i;
+        manager = wm;
+        startPosition = startPos;
+        startRotation = startRot;
+        endPosition = endPos;
+        endRotation = endRot;
+    }
+    public void Execute()
+    {
+        manager.waypointObjects[index].transform.SetPositionAndRotation(endPosition, Quaternion.identity);
+    }
+
+    public void Unexecute()
+    {
+        manager.waypointObjects[index].transform.SetPositionAndRotation(startPosition, Quaternion.identity);
+    }
+}
+
 struct WaypointCommandUtilities
 {
     public static void AppendWaypoint(Vector3 position, Quaternion rotation, WalkthroughManager manager)
@@ -81,11 +110,19 @@ struct WaypointCommandUtilities
         GameObject waypoint = UnityEngine.Object.Instantiate(manager.waypointPrefab, position, rotation);
         waypoint.transform.SetParent(manager.transform);
 
-        // Set index and delete callback
+        // Set index and callbacks for delete and move
         Waypoint waypointComponent = waypoint.GetComponent<Waypoint>();
         waypointComponent.SetIndex(manager.waypointObjects.Count);
         waypointComponent.SetButtonCallback(
             (eventData) => { manager.DeleteWaypoint(waypointComponent.GetIndex()); });
+        waypointComponent.SetMoveCallback(
+            (eventData) => {
+                manager.MoveWaypoint(waypointComponent.GetIndex(),
+                                     waypointComponent.transformer.startMovePosition,
+                                     waypointComponent.transformer.startMoveRotation,
+                                     waypointComponent.transformer.endMovePosition,
+                                     waypointComponent.transformer.endMoveRotation);
+            });
 
         // If there is already a waypoint, draw a dynamic line
         if (manager.waypointObjects.Count > 0) {

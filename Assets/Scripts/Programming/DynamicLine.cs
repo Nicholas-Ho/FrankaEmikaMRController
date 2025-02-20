@@ -34,11 +34,11 @@ public class DynamicLine : MonoBehaviour
         insertButtonTransform.position = (ref1.position + ref2.position) / 2;
     }
 
-    public void SetButtonCallback(UnityAction<BaseEventData> callback)
+    public void SetButtonCallback(UnityAction<BaseEventData> action)
     {
         insertButtonTransform = transform.Find("InsertButton");
         insertButtonComponent = insertButtonTransform.GetComponent<ProximityButton>();
-        insertButtonComponent.callback.AddListener(callback);
+        insertButtonComponent.callback.AddListener(action);
     }
 
     public void ResetButtonState() { insertButtonComponent.ResetState(); }

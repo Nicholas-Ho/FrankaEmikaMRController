@@ -90,8 +90,8 @@ public class WalkthroughManager : MonoBehaviour
         if (!initialised) return ;
 
         // Add waypoint object at the robot position
-        // AddCommand(new AppendWaypointCommand(position, this));
-        AddCommand(new AppendWaypointCommand(new Vector3(0,1,0), this));
+        AddCommand(new AppendWaypointCommand(position, this));
+        // AddCommand(new AppendWaypointCommand(new Vector3(0,1,0), this));  // For testing
     }
 
     public void InsertWaypoint(int index, Vector3 position)
@@ -102,6 +102,11 @@ public class WalkthroughManager : MonoBehaviour
     public void DeleteWaypoint(int index)
     {
         AddCommand(new DeleteWaypointCommand(index, this));
+    }
+
+    public void MoveWaypoint(int index, Vector3 startPos, Quaternion startRot, Vector3 endPos, Quaternion endRot)
+    {
+        AddCommand(new MoveWaypointCommand(index, startPos, startRot, endPos, endRot, this));
     }
 
     public void BeginExecutionPhase()
