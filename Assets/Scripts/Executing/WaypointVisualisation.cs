@@ -7,7 +7,7 @@ public class WaypointVisualisation : MonoBehaviour
 {
     public GameObject staticWaypointPrefab;
     public GameObject linePrefab;
-    private static List<GameObject> waypointObjects = new List<GameObject>();
+    private List<GameObject> waypointObjects = new List<GameObject>();
 
     // Start is called before the first frame update
     void Start()

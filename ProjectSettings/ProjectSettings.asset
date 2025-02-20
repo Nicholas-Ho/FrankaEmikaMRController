@@ -144,9 +144,6 @@ PlayerSettings:
   preloadedAssets:
   - {fileID: 11400000, guid: 3ebee338bdda4c34d81f6ddee2bd0c0d, type: 2}
   - {fileID: 11400000, guid: 27bfbc5138dcc1d4697a96d2a9204fa1, type: 2}
-  - {fileID: 11400000, guid: 902e00d6b85bf954985ef20522bddc4c, type: 2}
-  - {fileID: -2883051339056355949, guid: 9c95a27d0ab71c84dbf641842037460d, type: 2}
-  - {fileID: -4593490485202396311, guid: c62fdf144e7ffed46979bfc9880798a8, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -177,8 +174,8 @@ PlayerSettings:
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 1
-  AndroidMinSdkVersion: 29
-  AndroidTargetSdkVersion: 32
+  AndroidMinSdkVersion: 32
+  AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 0
   aotOptions: 
   stripEngineCode: 1
@@ -524,7 +521,11 @@ PlayerSettings:
   m_BuildTargetGraphicsJobs:
   - m_BuildTarget: WindowsStandaloneSupport
     m_GraphicsJobs: 0
-  m_BuildTargetGraphicsJobMode: []
+  - m_BuildTarget: AndroidPlayer
+    m_GraphicsJobs: 1
+  m_BuildTargetGraphicsJobMode:
+  - m_BuildTarget: AndroidPlayer
+    m_GraphicsJobMode: 1
   m_BuildTargetGraphicsAPIs:
   - m_BuildTarget: iOSSupport
     m_APIs: 10000000

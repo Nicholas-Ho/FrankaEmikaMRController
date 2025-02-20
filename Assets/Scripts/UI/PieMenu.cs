@@ -7,19 +7,10 @@ using UnityEngine;
 using UnityEngine.Analytics;
 using UnityEngine.EventSystems;
 
-public enum HandSide
-{
-    Left,
-    Right
-}
-
 public class PieMenu : MonoBehaviour
 {
     // Variable list of options
     public List<PieMenuOptionInfo> pieMenuOptions = new List<PieMenuOptionInfo>();
-
-    // Right or left hand?
-    public HandSide handSide = HandSide.Left;
 
     // Line divider
     public GameObject lineDividerPrefab;
@@ -38,6 +29,9 @@ public class PieMenu : MonoBehaviour
 
     // Cancel hover colour
     public Color cancelColour = new Color();
+
+    // Hand GameObject
+    public GameObject handObject;
 
     // List of option GameObjects
     private List<GameObject> optionObjects = new List<GameObject>();
@@ -89,17 +83,15 @@ public class PieMenu : MonoBehaviour
         // Hidden
         SetVisibility(false);
 
-        // Get hand reference. Name used is default from building block
-        string handSideString = handSide == HandSide.Left ? "left" : "right";
-        GameObject rightHandObject = GameObject.Find(
-            String.Format("[BuildingBlock] Hand Tracking {0}", handSideString));
-        hand = rightHandObject.GetComponent<OVRHand>();
-        handSkeleton = rightHandObject.GetComponent<OVRSkeleton>();
+        // Get hand reference
+        hand = handObject.GetComponent<OVRHand>();
+        handSkeleton = handObject.GetComponent<OVRSkeleton>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (hand)
         if (!hand.IsTracked) return ;
         bool pinching = hand.GetFingerIsPinching(OVRHand.HandFinger.Index);
         if (!visible) {
@@ -132,9 +124,9 @@ public class PieMenu : MonoBehaviour
             }
 
             if (!pinching) {
+                SetVisibility(false);
                 // Select option
                 if (currOption != -1) optionObjects[currOption].GetComponent<PieMenuOption>().ExecuteCallback();
-                SetVisibility(false);
             }
         }
     }

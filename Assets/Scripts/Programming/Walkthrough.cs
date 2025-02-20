@@ -22,11 +22,12 @@ public class WalkthroughManager : MonoBehaviour
     public List<GameObject> lineObjects = new List<GameObject>();
     private bool initialised = false;
     private bool connected = false;
-    private bool zeroSpring = false;
+    private float zeroSpringWait = 0f;
+    private float zeroSpringWaitThresh = 1.0f;
     private Vector3 position = Vector3.zero;
 
-    private Stack<IWaypointCommand> commands = new Stack<IWaypointCommand>();
-    private Stack<IWaypointCommand> undoneCommands = new Stack<IWaypointCommand>();  // Stack for undone commands. Cleared on new command added.
+    private static Stack<IWaypointCommand> commands = new Stack<IWaypointCommand>();
+    private static Stack<IWaypointCommand> undoneCommands = new Stack<IWaypointCommand>();  // Stack for undone commands. Cleared on new command added.
 
     // Persistent across scenes
     [HideInInspector]
@@ -50,12 +51,12 @@ public class WalkthroughManager : MonoBehaviour
         if (!initialised) Initialise();
 
         // Set spring constant to near zero
-        if (initialised && connected && !zeroSpring) {
+        if (initialised && connected && zeroSpringWait < zeroSpringWaitThresh) {
             // [x, y, z, spring_k, damper_k]
             Float64MultiArrayMsg target_data = new Float64MultiArrayMsg();
             target_data.data = new double[]{0, 0, 0, 0.0001, 5};
             ros.Publish(pubTopic, target_data);
-            zeroSpring = true;
+            zeroSpringWait += Time.deltaTime;
         }
     }
 
@@ -79,6 +80,11 @@ public class WalkthroughManager : MonoBehaviour
         connected = true;
     }
 
+    public void OnDestroy()
+    {
+        ros.Unsubscribe(subTopic);
+    }
+
     public void AddWaypoint()
     {
         if (!initialised) return ;
@@ -86,6 +92,11 @@ public class WalkthroughManager : MonoBehaviour
         // Add waypoint object at the robot position
         // AddCommand(new AppendWaypointCommand(position, this));
         AddCommand(new AppendWaypointCommand(new Vector3(0,1,0), this));
+    }
+
+    public void InsertWaypoint(int index, Vector3 position)
+    {
+        AddCommand(new InsertWaypointCommand(index, position, this));
     }
 
     public void DeleteWaypoint(int index)
