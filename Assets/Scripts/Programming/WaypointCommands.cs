@@ -133,7 +133,7 @@ struct WaypointCommandUtilities
             lineComponent.ref2 = waypoint.transform;
             lineComponent.SetButtonCallback(
                 (eventData) => {
-                    manager.InsertWaypoint(waypointComponent.GetIndex(), lineComponent.GetInsertPosition());
+                    manager.InsertWaypoint(waypointComponent.GetIndex());
                 });
             manager.lineObjects.Add(line);
         }

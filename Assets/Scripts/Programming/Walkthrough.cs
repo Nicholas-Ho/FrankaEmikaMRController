@@ -80,10 +80,10 @@ public class WalkthroughManager : MonoBehaviour
         connected = true;
     }
 
-    public void OnDestroy()
-    {
-        ros.Unsubscribe(subTopic);
-    }
+    // public void OnDestroy()
+    // {
+    //     ros.Unsubscribe(subTopic);
+    // }
 
     public void AddWaypoint()
     {
@@ -94,9 +94,14 @@ public class WalkthroughManager : MonoBehaviour
         // AddCommand(new AppendWaypointCommand(new Vector3(0,1,0), this));  // For testing
     }
 
-    public void InsertWaypoint(int index, Vector3 position)
+    public void InsertWaypoint(int index)
     {
         AddCommand(new InsertWaypointCommand(index, position, this));
+    }
+
+    public void InsertWaypointAtPosition(int index, Vector3 insertPos)
+    {
+        AddCommand(new InsertWaypointCommand(index, insertPos, this));
     }
 
     public void DeleteWaypoint(int index)

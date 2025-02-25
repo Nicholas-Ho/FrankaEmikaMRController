@@ -43,5 +43,5 @@ public class DynamicLine : MonoBehaviour
 
     public void ResetButtonState() { insertButtonComponent.ResetState(); }
 
-    public Vector3 GetInsertPosition() { return insertButtonTransform.position; }
+    public Vector3 GetMidpoint() { return insertButtonTransform.position; }
 }

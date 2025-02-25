@@ -65,10 +65,10 @@ public class EndTarget : MonoBehaviour
         }
     }
 
-    public void OnDestroy()
-    {
-        ros.Unsubscribe(subTopic);
-    }
+    // public void OnDestroy()
+    // {
+    //     ros.Unsubscribe(subTopic);
+    // }
 
     public bool IsReady()
     {

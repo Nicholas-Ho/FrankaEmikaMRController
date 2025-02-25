@@ -11,8 +11,10 @@ public class DigitalTwinManager : MonoBehaviour
 
     public string topic = "/joint_states";
     public int numberOfJoints = 7;
+    public float initialiseTime = 0.5f;  // in seconds
 
     private float[] positions;
+    private float currentTime = 0f;
     private bool initialised = false;
     private JointPositionState jointSetter;
 
@@ -25,6 +27,8 @@ public class DigitalTwinManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (currentTime > initialiseTime) return ;
+        currentTime += Time.deltaTime;
         if (!initialised) Initialise();
         jointSetter.SetJointPositions(positions);
     }
@@ -51,10 +55,10 @@ public class DigitalTwinManager : MonoBehaviour
         }
     }
 
-    public void OnDestroy()
-    {
-        ros.Unsubscribe(topic);
-    }
+    // public void OnDestroy()
+    // {
+    //     ros.Unsubscribe(topic);
+    // }
 
     public float DegreesToRadians(float degrees)
     {

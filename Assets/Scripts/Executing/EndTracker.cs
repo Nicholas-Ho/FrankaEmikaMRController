@@ -41,8 +41,8 @@ public class EndTracker : MonoBehaviour
         transform.position = UrdfPositioner.TransformFromRobotSpace(position);
     }
 
-    public void OnDestroy()
-    {
-        ros.Unsubscribe(subTopic);
-    }
+    // public void OnDestroy()
+    // {
+    //     ros.Unsubscribe(subTopic);
+    // }
 }
