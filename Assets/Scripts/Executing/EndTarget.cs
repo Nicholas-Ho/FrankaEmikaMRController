@@ -1,7 +1,8 @@
 using UnityEngine;
 using Unity.Robotics.ROSTCPConnector;
+using Unity.Robotics.ROSTCPConnector.ROSGeometry;
 using RosMessageTypes.Geometry;
-using RosMessageTypes.Std;
+using RosMessageTypes.FrankaExampleControllers;
 using UrdfPositioning;
 using System;
 
@@ -12,9 +13,8 @@ public class EndTarget : MonoBehaviour
     public string subTopic = "/robot_current_pose";
     public string pubTopic = "/target_data";
     public float springStiffness = 100;
-    public float damperStrength = 5;
+    public float rotationalStiffness = 30;
 
-    QuaternionMsg orientation;
     private bool initialised = false;
     private bool initialPositionSet = false;
 
@@ -29,15 +29,11 @@ public class EndTarget : MonoBehaviour
     {
         if (!initialised) Initialise();
         if (initialised && initialPositionSet) {
-            Vector3 robotOriginTransform = UrdfPositioner.TransformToRobotSpace(transform.position);
-            Float64MultiArrayMsg msg = new Float64MultiArrayMsg();
-            msg.data = new double[]{
-                robotOriginTransform.z,
-                -robotOriginTransform.x,
-                robotOriginTransform.y,
-                springStiffness,
-                damperStrength
-            };
+            TargetPoseMsg msg = new();
+            msg.pose.position = UrdfPositioner.VectorToRobotSpace(transform.position).To<FLU>();
+            msg.pose.orientation = UrdfPositioner.RotateToRobotSpace(transform.rotation).To<FLU>();
+            msg.cartesian_stiffness = springStiffness;
+            msg.rotational_stiffness = rotationalStiffness;
 
             ros.Publish(pubTopic, msg);
         }
@@ -48,19 +44,16 @@ public class EndTarget : MonoBehaviour
         // Initialise ROS
         ros = ROSConnection.GetOrCreateInstance();
         ros.Subscribe<PoseStampedMsg>(subTopic, SubscribeCallback);
-        ros.RegisterPublisher<Float64MultiArrayMsg>(pubTopic);
+        ros.RegisterPublisher<TargetPoseMsg>(pubTopic);
         initialised = true;
     }
 
     void SubscribeCallback(PoseStampedMsg msg)
     {
         if (!initialPositionSet) {
-            Vector3 position = new Vector3(
-                (float)-msg.pose.position.y,  // Note: Swapped around x and y
-                (float)msg.pose.position.z,
-                (float)msg.pose.position.x);
-            transform.position = UrdfPositioner.TransformFromRobotSpace(position);
-            orientation = msg.pose.orientation;
+            transform.SetPositionAndRotation(
+                UrdfPositioner.VectorFromRobotSpace(msg.pose.position.From<FLU>()),
+                UrdfPositioner.RotateFromRobotSpace(msg.pose.orientation.From<FLU>()));
             initialPositionSet = true;
         }
     }

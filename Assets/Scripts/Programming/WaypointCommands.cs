@@ -10,11 +10,17 @@ interface IWaypointCommand { void Execute(); void Unexecute(); }
 struct AppendWaypointCommand : IWaypointCommand
 {
     private Vector3 position;
+    private Quaternion rotation;
     private WalkthroughManager manager;
-    public AppendWaypointCommand(Vector3 pos, WalkthroughManager wm) { position = pos; manager = wm; }
+    public AppendWaypointCommand(Vector3 pos, Quaternion rot, WalkthroughManager wm) {
+        position = pos;
+        rotation = rot;
+        manager = wm;
+    }
+
     public void Execute()
     {
-        WaypointCommandUtilities.AppendWaypoint(position, Quaternion.identity, manager);
+        WaypointCommandUtilities.AppendWaypoint(position, rotation, manager);
     }
 
     public void Unexecute()
@@ -29,13 +35,11 @@ struct InsertWaypointCommand : IWaypointCommand
     private Vector3 position;
     private Quaternion rotation;
     private WalkthroughManager manager;
-    public InsertWaypointCommand(int i, Vector3 pos, WalkthroughManager wm) {
+    public InsertWaypointCommand(int i, Vector3 pos, Quaternion rot, WalkthroughManager wm) {
         index = i;
         position = pos;
+        rotation = rot;
         manager = wm;
-
-        // Defaults
-        rotation = Quaternion.identity;
     }
 
     public void Execute()
@@ -93,12 +97,12 @@ struct MoveWaypointCommand : IWaypointCommand
     }
     public void Execute()
     {
-        manager.waypointObjects[index].transform.SetPositionAndRotation(endPosition, Quaternion.identity);
+        manager.waypointObjects[index].GetComponent<Waypoint>().SetWaypointTransform(endPosition, endRotation);
     }
 
     public void Unexecute()
     {
-        manager.waypointObjects[index].transform.SetPositionAndRotation(startPosition, Quaternion.identity);
+        manager.waypointObjects[index].GetComponent<Waypoint>().SetWaypointTransform(startPosition, startRotation);
     }
 }
 
@@ -107,7 +111,7 @@ struct WaypointCommandUtilities
     public static void AppendWaypoint(Vector3 position, Quaternion rotation, WalkthroughManager manager)
     {
         // Add waypoint object
-        GameObject waypoint = UnityEngine.Object.Instantiate(manager.waypointPrefab, position, rotation);
+        GameObject waypoint = UnityEngine.Object.Instantiate(manager.waypointPrefab);
         waypoint.transform.SetParent(manager.transform);
 
         // Set index and callbacks for delete and move
@@ -123,6 +127,7 @@ struct WaypointCommandUtilities
                                      waypointComponent.transformer.endMovePosition,
                                      waypointComponent.transformer.endMoveRotation);
             });
+        waypointComponent.SetWaypointTransform(position, rotation);
 
         // If there is already a waypoint, draw a dynamic line
         if (manager.waypointObjects.Count > 0) {
@@ -164,13 +169,14 @@ struct WaypointCommandUtilities
 
         // Shift waypoints one index backward
         for (int i=manager.waypointObjects.Count-1; i>index; i--) {
-            manager.waypointObjects[i].transform.SetPositionAndRotation(
+            manager.waypointObjects[i].GetComponent<Waypoint>().SetWaypointTransform(
                 manager.waypointObjects[i-1].transform.position,
-                manager.waypointObjects[i-1].transform.rotation);
+                manager.waypointObjects[i-1].GetComponent<Waypoint>().grabTransform.rotation);
         }
 
-        manager.waypointObjects[index].transform.position = position;
-        manager.waypointObjects[index].transform.rotation = rotation;
+        manager.waypointObjects[index].GetComponent<Waypoint>().SetWaypointTransform(
+            position,
+            rotation);
         manager.lineObjects[index-1].GetComponent<DynamicLine>().ResetButtonState();
     }
 
@@ -186,13 +192,13 @@ struct WaypointCommandUtilities
 
         // Store position and rotation in case of undo
         position = manager.waypointObjects[index].transform.position;
-        rotation = manager.waypointObjects[index].transform.rotation;
+        rotation = manager.waypointObjects[index].GetComponent<Waypoint>().grabTransform.rotation;
 
         // Shift waypoints one index forward
         for (int i=index; i<(manager.waypointObjects.Count-1); i++) {
-            manager.waypointObjects[i].transform.SetPositionAndRotation(
+            manager.waypointObjects[i].GetComponent<Waypoint>().SetWaypointTransform(
                 manager.waypointObjects[i+1].transform.position,
-                manager.waypointObjects[i+1].transform.rotation);
+                manager.waypointObjects[i+1].GetComponent<Waypoint>().grabTransform.rotation);
         }
         manager.waypointObjects[index].GetComponent<Waypoint>().ResetButtonState();
 

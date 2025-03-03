@@ -16,7 +16,7 @@ public class ExecutionManager : MonoBehaviour
     public float waitDistanceThreshold = 0.2f;
     public float resumeDistanceThreshold = 0.1f;
     public float waypointReachedThreshold = 0.05f;
-    private List<Vector3> waypoints;
+    private List<TransformData> waypoints;
     private int activeWaypoint = 0;
     private bool waiting = false;
     private bool paused = false;
@@ -25,7 +25,7 @@ public class ExecutionManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        waypoints = WalkthroughManager.waypoints;
+        waypoints = WalkthroughManager.waypointTransformData;
         activeWaypoint = 0;
     }
 
@@ -50,7 +50,7 @@ public class ExecutionManager : MonoBehaviour
                     return ;
             }
 
-            if (Vector3.Distance(endTracker.transform.position, waypoints[activeWaypoint])
+            if (Vector3.Distance(endTracker.transform.position, waypoints[activeWaypoint].position)
                 < waypointReachedThreshold) {
                     // If waypoint reached, move to next waypoint
                     activeWaypoint++;
@@ -65,7 +65,7 @@ public class ExecutionManager : MonoBehaviour
                     }
             }
 
-            Vector3 direction = (waypoints[activeWaypoint] - endTarget.transform.position).normalized;
+            Vector3 direction = (waypoints[activeWaypoint].position - endTarget.transform.position).normalized;
             Vector3 displacement = speed * Time.deltaTime * direction;
             endTarget.transform.position += displacement;
         }

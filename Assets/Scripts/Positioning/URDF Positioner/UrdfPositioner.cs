@@ -26,17 +26,29 @@ namespace UrdfPositioning {
         public static TransformData robotOriginTransform;
         private static Quaternion inverseOriginQuaternion;
         private static bool invertedQuaternion = false;
-        public static Vector3 TransformFromRobotSpace(Vector3 vector) {
+        public static Vector3 VectorFromRobotSpace(Vector3 vector) {
             return robotOriginTransform.rotation * vector +
                 robotOriginTransform.position;
         }
 
-        public static Vector3 TransformToRobotSpace(Vector3 vector) {
+        public static Vector3 VectorToRobotSpace(Vector3 vector) {
             if (!invertedQuaternion) {
                 inverseOriginQuaternion = Quaternion.Inverse(robotOriginTransform.rotation);
                 invertedQuaternion = true;
             }
             return inverseOriginQuaternion * (vector - robotOriginTransform.position);
+        }
+
+        public static Quaternion RotateFromRobotSpace(Quaternion rotation) {
+            return robotOriginTransform.rotation * rotation;
+        }
+
+        public static Quaternion RotateToRobotSpace(Quaternion rotation) {
+            if (!invertedQuaternion) {
+                inverseOriginQuaternion = Quaternion.Inverse(robotOriginTransform.rotation);
+                invertedQuaternion = true;
+            }
+            return rotation * inverseOriginQuaternion;
         }
 
         // Start is called before the first frame update

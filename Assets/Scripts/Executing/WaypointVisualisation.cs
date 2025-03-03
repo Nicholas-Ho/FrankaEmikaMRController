@@ -12,12 +12,13 @@ public class WaypointVisualisation : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        List<Vector3> waypoints = WalkthroughManager.waypoints;
+        List<TransformData> waypoints = WalkthroughManager.waypointTransformData;
         for (int i=0; i<waypoints.Count; i++) {
-            GameObject waypointObject = Instantiate(staticWaypointPrefab,
-                                                    waypoints[i],
-                                                    Quaternion.identity);
-            waypointObject.GetComponentInChildren<Waypoint>().SetIndex(i);
+            GameObject waypointObject = Instantiate(staticWaypointPrefab);
+            waypointObject.GetComponent<Waypoint>().SetWaypointTransform(
+                waypoints[i].position, waypoints[i].rotation
+            );
+            waypointObject.GetComponent<Waypoint>().SetIndex(i);
             waypointObjects.Add(waypointObject);
             waypointObject.transform.SetParent(transform);
         }
@@ -26,8 +27,8 @@ public class WaypointVisualisation : MonoBehaviour
             GameObject line = Instantiate(linePrefab);
             line.transform.SetParent(transform);
             LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
-            lineRenderer.SetPosition(0, waypoints[i]);
-            lineRenderer.SetPosition(1, waypoints[i+1]);
+            lineRenderer.SetPosition(0, waypoints[i].position);
+            lineRenderer.SetPosition(1, waypoints[i+1].position);
         }
     }
 }

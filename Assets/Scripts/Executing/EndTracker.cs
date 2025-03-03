@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Robotics.ROSTCPConnector;
+using Unity.Robotics.ROSTCPConnector.ROSGeometry;
 using RosMessageTypes.Geometry;
 using UrdfPositioning;
 using System;
@@ -34,11 +35,9 @@ public class EndTracker : MonoBehaviour
 
     void SubscribeCallback(PoseStampedMsg msg)
     {
-        Vector3 position = new Vector3(
-            (float)-msg.pose.position.y,  // Note: Swapped around x and y
-            (float)msg.pose.position.z,
-            (float)msg.pose.position.x);
-        transform.position = UrdfPositioner.TransformFromRobotSpace(position);
+        transform.SetPositionAndRotation(
+            UrdfPositioner.VectorFromRobotSpace(msg.pose.position.From<FLU>()),
+            UrdfPositioner.RotateFromRobotSpace(msg.pose.orientation.From<FLU>()));
     }
 
     // public void OnDestroy()

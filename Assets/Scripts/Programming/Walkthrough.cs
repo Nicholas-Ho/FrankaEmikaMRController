@@ -1,12 +1,14 @@
 using UnityEngine;
 using Unity.Robotics.ROSTCPConnector;
+using Unity.Robotics.ROSTCPConnector.ROSGeometry;
 using RosMessageTypes.Geometry;
-using RosMessageTypes.Std;
+using RosMessageTypes.FrankaExampleControllers;
 using UrdfPositioning;
 using System;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
+using System.Drawing;
 
 public class WalkthroughManager : MonoBehaviour
 {
@@ -25,13 +27,14 @@ public class WalkthroughManager : MonoBehaviour
     private float zeroSpringWait = 0f;
     private float zeroSpringWaitThresh = 1.0f;
     private Vector3 position = Vector3.zero;
+    private Quaternion rotation = Quaternion.identity;
 
     private static Stack<IWaypointCommand> commands = new Stack<IWaypointCommand>();
     private static Stack<IWaypointCommand> undoneCommands = new Stack<IWaypointCommand>();  // Stack for undone commands. Cleared on new command added.
 
     // Persistent across scenes
     [HideInInspector]
-    public static List<Vector3> waypoints =  new List<Vector3>();
+    public static List<TransformData> waypointTransformData =  new();
 
     // Start is called before the first frame update
     void Start()
@@ -39,10 +42,10 @@ public class WalkthroughManager : MonoBehaviour
         Initialise();
 
         // For reloading the programming scene
-        foreach (Vector3 waypointPos in waypoints) {
-            AddCommand(new AppendWaypointCommand(waypointPos, this), true);
+        foreach (TransformData data in waypointTransformData) {
+            AddCommand(new AppendWaypointCommand(data.position, data.rotation, this), true);
         }
-        waypoints = new List<Vector3>();
+        waypointTransformData = new List<TransformData>();
     }
 
     // Update is called once per frame
@@ -53,9 +56,18 @@ public class WalkthroughManager : MonoBehaviour
         // Set spring constant to near zero
         if (initialised && connected && zeroSpringWait < zeroSpringWaitThresh) {
             // [x, y, z, spring_k, damper_k]
-            Float64MultiArrayMsg target_data = new Float64MultiArrayMsg();
-            target_data.data = new double[]{0, 0, 0, 0.0001, 5};
-            ros.Publish(pubTopic, target_data);
+            TargetPoseMsg msg = new();
+            msg.pose.position = new PointMsg();
+            msg.pose.orientation = new QuaternionMsg
+            {
+                x = 0,
+                y = 0,
+                z = 0
+            };
+            msg.cartesian_stiffness = 0;
+            msg.rotational_stiffness = 0;
+
+            ros.Publish(pubTopic, msg);
             zeroSpringWait += Time.deltaTime;
         }
     }
@@ -65,18 +77,14 @@ public class WalkthroughManager : MonoBehaviour
         // Initialise ROS
         ros = ROSConnection.GetOrCreateInstance();
         ros.Subscribe<PoseStampedMsg>(subTopic, SubscribeCallback);
-        ros.RegisterPublisher<Float64MultiArrayMsg>(pubTopic);
+        ros.RegisterPublisher<TargetPoseMsg>(pubTopic);
         initialised = true;
     }
 
     void SubscribeCallback(PoseStampedMsg msg)
     {
-        // Keep track of position for retrieval
-        Vector3 _position = new Vector3(
-            (float)-msg.pose.position.y,  // Note: Swapped around x and y
-            (float)msg.pose.position.z,
-            (float)msg.pose.position.x);
-        position = UrdfPositioner.TransformFromRobotSpace(_position);
+        position = UrdfPositioner.VectorFromRobotSpace(msg.pose.position.From<FLU>());
+        rotation = UrdfPositioner.RotateFromRobotSpace(msg.pose.orientation.From<FLU>());
         connected = true;
     }
 
@@ -90,18 +98,18 @@ public class WalkthroughManager : MonoBehaviour
         if (!initialised) return ;
 
         // Add waypoint object at the robot position
-        AddCommand(new AppendWaypointCommand(position, this));
-        // AddCommand(new AppendWaypointCommand(new Vector3(0,1,0), this));  // For testing
+        // AddCommand(new AppendWaypointCommand(position, rotation, this));
+        AddCommand(new AppendWaypointCommand(new Vector3(0,1,0), Quaternion.identity, this));  // For testing
     }
 
     public void InsertWaypoint(int index)
     {
-        AddCommand(new InsertWaypointCommand(index, position, this));
+        AddCommand(new InsertWaypointCommand(index, position, rotation, this));
     }
 
-    public void InsertWaypointAtPosition(int index, Vector3 insertPos)
+    public void InsertWaypointAtPosition(int index, Vector3 insertPos, Quaternion insertRot)
     {
-        AddCommand(new InsertWaypointCommand(index, insertPos, this));
+        AddCommand(new InsertWaypointCommand(index, insertPos, insertRot, this));
     }
 
     public void DeleteWaypoint(int index)
@@ -117,9 +125,12 @@ public class WalkthroughManager : MonoBehaviour
     public void BeginExecutionPhase()
     {
         if (!initialised) return ;
-        waypoints = new List<Vector3>();
+        waypointTransformData = new List<TransformData>();
         foreach (GameObject waypoint in waypointObjects) {
-            waypoints.Add(waypoint.transform.position);
+            waypointTransformData.Add(new TransformData(
+                waypoint.transform.position,
+                waypoint.GetComponent<Waypoint>().grabTransform.rotation
+            ));
         }
 
         SceneManager.LoadSceneAsync(2, LoadSceneMode.Single);
