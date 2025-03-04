@@ -43,7 +43,7 @@ public class WalkthroughManager : MonoBehaviour
         foreach (TransformData data in waypointTransformData) {
             AddCommand(new AppendWaypointCommand(data.position, data.rotation, this), true);
         }
-        waypointTransformData = new List<TransformData>();
+        waypointTransformData.Clear();
 
         dynamicLine.SetActive(false);
     }
@@ -125,7 +125,7 @@ public class WalkthroughManager : MonoBehaviour
     public void BeginExecutionPhase()
     {
         if (!initialised) return ;
-        waypointTransformData = new List<TransformData>();
+        waypointTransformData.Clear();
         foreach (GameObject waypoint in waypointObjects) {
             waypointTransformData.Add(new TransformData(
                 waypoint.transform.position,

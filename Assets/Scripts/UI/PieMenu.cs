@@ -9,8 +9,14 @@ using UnityEngine.EventSystems;
 
 public class PieMenu : MonoBehaviour
 {
+    // Active pie menus for closing
+    public static List<PieMenu> activePieMenus = new();
+
     // Variable list of options
     public List<PieMenuOptionInfo> pieMenuOptions = new List<PieMenuOptionInfo>();
+
+    // Is this the primary pie menu?
+    public bool primary = false;
 
     // Line divider
     public GameObject lineDividerPrefab;
@@ -30,11 +36,14 @@ public class PieMenu : MonoBehaviour
     // Cancel hover colour
     public Color cancelColour = new Color();
 
+    // Opacity ratio when not in focus
+    public float outOfFocusOpacityRation = 0.5f;
+
     // Hand GameObject
     public GameObject handObject;
 
     // List of option GameObjects
-    private List<GameObject> optionObjects = new List<GameObject>();
+    private List<GameObject> optionObjects = new();
 
     // Reference to hand
     private OVRHand hand;
@@ -45,8 +54,15 @@ public class PieMenu : MonoBehaviour
     // Reference to cancel button GameObject
     private GameObject cancelButton;
 
+    // Sprite and text renderers in children
+    SpriteRenderer[] spriteRenderers = {};
+    TextMeshPro[] tmps = {};
+
     // Visibility of object
     private bool visible = false;
+
+    // Is this pie menu in focus?
+    private bool focus = false;
 
     // Start is called before the first frame update
     void Start()
@@ -91,20 +107,16 @@ public class PieMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (hand)
+        if (!hand.IsActive()) return ;
         if (!hand.IsTracked) return ;
         bool pinching = hand.GetFingerIsPinching(OVRHand.HandFinger.Index);
         if (!visible) {
-            if (pinching) {
-                // Set position to hand
-                Vector3 headPos = GameObject.FindWithTag("MainCamera").transform.position;
-                Vector3 rightIndexPos = HandUtilities.GetIndexTipTransform(handSkeleton).position;
-                transform.position = rightIndexPos;
-                transform.LookAt(headPos);
-
-                SetVisibility(true);
-            }
+            // Only activate on pinching if primary
+            if (pinching && primary) BringIntoFocus();
         } else {
+            // If not in focus, wait for pie menu in focus to deactivate
+            if (!focus) return ;
+
             // Reset all option colours
             cancelButton.GetComponent<SpriteRenderer>().color = Color.white;
             foreach (GameObject option in optionObjects) {
@@ -121,14 +133,74 @@ public class PieMenu : MonoBehaviour
             } else {
                 // Option colours
                 optionObjects[currOption].GetComponentInChildren<TextMeshPro>().color = optionColour;
+
+                // If hover to open menu, open child menu
+                if (pieMenuOptions[currOption].hoverOpenMenu) {
+                    OpenChildPieMenu(currOption);
+                    return ;
+                }
             }
 
             if (!pinching) {
-                SetVisibility(false);
+                CloseAll();
                 // Select option
                 if (currOption != -1) optionObjects[currOption].GetComponent<PieMenuOption>().ExecuteCallback();
             }
         }
+    }
+
+    public void BringIntoFocus()
+    {
+        Vector3 rightIndexPos = HandUtilities.GetIndexTipTransform(handSkeleton).position;
+
+        if (primary) {
+            // Set position to hand
+            Vector3 headPos = GameObject.FindWithTag("MainCamera").transform.position;
+            transform.position = rightIndexPos;
+            transform.LookAt(headPos);
+        } else {
+            Vector3 forward = activePieMenus[^1].transform.forward;
+            transform.position = Vector3.ProjectOnPlane(rightIndexPos, forward)
+                + forward * Vector3.Dot(activePieMenus[^1].transform.position, forward)
+                + forward * 0.03f;  // Offset distance from parent
+            transform.forward = forward;
+        }
+
+        // If there are other active pie menus, ensure that they overlay the parents
+        spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i=0; i<spriteRenderers.Count(); i++)
+            spriteRenderers[i].sortingOrder += 2 * activePieMenus.Count;
+        tmps = GetComponentsInChildren<TextMeshPro>(true);
+        for (int i=0; i<tmps.Count(); i++)
+            tmps[i].sortingOrder += 2 * activePieMenus.Count;
+    
+        SetVisibility(true);
+        focus = true;
+        activePieMenus.Add(this);
+    }
+
+    private void OpenChildPieMenu(int currOption)
+    {
+        // Visuals
+        if (spriteRenderers.Count() == 0) spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        for (int i=0; i<spriteRenderers.Count(); i++)
+            spriteRenderers[i].color = new Color(
+                spriteRenderers[i].color.r,
+                spriteRenderers[i].color.g,
+                spriteRenderers[i].color.b,
+                spriteRenderers[i].color.a * outOfFocusOpacityRation
+            );
+        if (tmps.Count() == 0) tmps = GetComponentsInChildren<TextMeshPro>();
+        for (int i=0; i<tmps.Count(); i++)
+            tmps[i].color = new Color(
+                tmps[i].color.r,
+                tmps[i].color.g,
+                tmps[i].color.b,
+                tmps[i].color.a * outOfFocusOpacityRation
+            );
+
+        focus = false;
+        optionObjects[currOption].GetComponent<PieMenuOption>().ExecuteCallback();
     }
 
     private int GetHoverOption()
@@ -160,6 +232,48 @@ public class PieMenu : MonoBehaviour
             child.gameObject.SetActive(_visible);
         }
     }
+
+    public void Close()
+    {
+        if (spriteRenderers.Count() == 0) spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        if (tmps.Count() == 0) tmps = GetComponentsInChildren<TextMeshPro>();
+
+        // Restore order layer
+        for (int i=0; i<spriteRenderers.Count(); i++)
+            spriteRenderers[i].sortingOrder -= 2 * activePieMenus.Count;
+        for (int i=0; i<tmps.Count(); i++)
+            tmps[i].sortingOrder -= 2 * activePieMenus.Count;
+        
+        // Restore visuals if out of focus
+        if (!focus) {
+            for (int i=0; i<spriteRenderers.Count(); i++)
+                spriteRenderers[i].color = new Color(
+                    spriteRenderers[i].color.r,
+                    spriteRenderers[i].color.g,
+                    spriteRenderers[i].color.b,
+                    spriteRenderers[i].color.a / outOfFocusOpacityRation
+                );
+            for (int i=0; i<tmps.Count(); i++)
+                tmps[i].color = new Color(
+                    tmps[i].color.r,
+                    tmps[i].color.g,
+                    tmps[i].color.b,
+                    tmps[i].color.a / outOfFocusOpacityRation
+                );
+        }
+
+        focus = false;
+        SetVisibility(false);
+    }
+
+    public void CloseAll()
+    {
+        for (int i=activePieMenus.Count-1; i>=0; i--) {
+            PieMenu curr = activePieMenus[i];
+            activePieMenus.RemoveAt(i);
+            curr.Close();
+        }
+    }
 }
 
 
@@ -168,4 +282,5 @@ public struct PieMenuOptionInfo
 {
     public string name;
     public EventTrigger.TriggerEvent callback;
+    public bool hoverOpenMenu;
 }

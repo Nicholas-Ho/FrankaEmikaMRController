@@ -1871,6 +1871,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
         type: 3}
+      propertyPath: primary
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
       propertyPath: handObject
       value: 
       objectReference: {fileID: 1298206123}
@@ -22748,6 +22753,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   topic: /joint_states
   numberOfJoints: 7
+  initialiseTime: 0.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

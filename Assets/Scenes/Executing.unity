@@ -9782,7 +9782,7 @@ MonoBehaviour:
   subTopic: /robot_current_pose
   pubTopic: /target_data
   springStiffness: 150
-  damperStrength: 5
+  rotationalStiffness: 30
 --- !u!1 &1019071427
 GameObject:
   m_ObjectHideFlags: 0
@@ -16079,6 +16079,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
+        type: 3}
+      propertyPath: primary
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6845988393078215702, guid: d2624932b65be1f419b825d818908671,
         type: 3}
