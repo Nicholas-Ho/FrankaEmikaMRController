@@ -17,11 +17,9 @@ public class WalkthroughManager : MonoBehaviour
     public string subTopic = "/robot_current_pose";
     public string pubTopic = "/target_data";
     public GameObject waypointPrefab;
-    public GameObject dynamicLinePrefab;
+    public GameObject dynamicLine;
     [HideInInspector]
     public List<GameObject> waypointObjects =  new List<GameObject>();
-    [HideInInspector]
-    public List<GameObject> lineObjects = new List<GameObject>();
     private bool initialised = false;
     private bool connected = false;
     private float zeroSpringWait = 0f;
@@ -46,6 +44,8 @@ public class WalkthroughManager : MonoBehaviour
             AddCommand(new AppendWaypointCommand(data.position, data.rotation, this), true);
         }
         waypointTransformData = new List<TransformData>();
+
+        dynamicLine.SetActive(false);
     }
 
     // Update is called once per frame
@@ -98,8 +98,8 @@ public class WalkthroughManager : MonoBehaviour
         if (!initialised) return ;
 
         // Add waypoint object at the robot position
-        // AddCommand(new AppendWaypointCommand(position, rotation, this));
-        AddCommand(new AppendWaypointCommand(new Vector3(0,1,0), Quaternion.identity, this));  // For testing
+        AddCommand(new AppendWaypointCommand(position, rotation, this));
+        // AddCommand(new AppendWaypointCommand(new Vector3(0,1,0), Quaternion.identity, this));  // For testing
     }
 
     public void InsertWaypoint(int index)

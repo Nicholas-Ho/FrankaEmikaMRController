@@ -129,19 +129,14 @@ struct WaypointCommandUtilities
             });
         waypointComponent.SetWaypointTransform(position, rotation);
 
-        // If there is already a waypoint, draw a dynamic line
-        if (manager.waypointObjects.Count > 0) {
-            GameObject line = UnityEngine.Object.Instantiate(manager.dynamicLinePrefab);
-            line.transform.SetParent(manager.transform);
-            DynamicLine lineComponent = line.GetComponent<DynamicLine>();
-            lineComponent.ref1 = manager.waypointObjects[^1].transform;
-            lineComponent.ref2 = waypoint.transform;
-            lineComponent.SetButtonCallback(
-                (eventData) => {
-                    manager.InsertWaypoint(waypointComponent.GetIndex());
-                });
-            manager.lineObjects.Add(line);
-        }
+        // Update the dynamic line
+        if (manager.waypointObjects.Count > 0) manager.dynamicLine.SetActive(true);
+        DynamicLine lineComponent = manager.dynamicLine.GetComponent<DynamicLine>();
+        lineComponent.AddReferenceTransform(
+            waypoint.transform,
+            (eventData) => {
+                manager.InsertWaypoint(waypointComponent.GetIndex());
+            });
 
         // Add waypoint to list
         manager.waypointObjects.Add(waypoint);
@@ -150,11 +145,8 @@ struct WaypointCommandUtilities
     public static void PopLastWaypoint(WalkthroughManager manager)
     {
         // Remove last waypoint and line
-        if (manager.lineObjects.Count > 0) {
-            GameObject lastLine = manager.lineObjects[^1];
-            manager.lineObjects.RemoveAt(manager.lineObjects.Count-1);
-            UnityEngine.Object.Destroy(lastLine);
-        }
+        manager.dynamicLine.GetComponent<DynamicLine>().PopLastReferenceTransform();
+
         GameObject lastWaypoint = manager.waypointObjects[^1];
         manager.waypointObjects.RemoveAt(manager.waypointObjects.Count-1);
         UnityEngine.Object.Destroy(lastWaypoint);
@@ -177,7 +169,7 @@ struct WaypointCommandUtilities
         manager.waypointObjects[index].GetComponent<Waypoint>().SetWaypointTransform(
             position,
             rotation);
-        manager.lineObjects[index-1].GetComponent<DynamicLine>().ResetButtonState();
+        manager.dynamicLine.GetComponent<DynamicLine>().ResetButtonState(index-1);
     }
 
     public static void DeleteWaypointAtIndex(int index,

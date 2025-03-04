@@ -33,6 +33,7 @@ public class Waypoint : MonoBehaviour
             transformer = GetComponentInChildren<GrabFreeTransformerTracking>();
             deleteButton = GetComponentInChildren<ProximityButton>();
         }
+        initialised = true;
     }
 
     // Update is called once per frame
@@ -78,7 +79,8 @@ public class Waypoint : MonoBehaviour
         transformer.AddCallbackListener(action);
     }
 
-    public void SetWaypointTransform(Vector3 position, Quaternion rotation) {
+    public void SetWaypointTransform(Vector3 position, Quaternion rotation)
+    {
         if (!initialised) Initialise();
         transform.position = position;
         if (!staticWaypoint) grabTransform.rotation = rotation;
