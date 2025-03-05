@@ -48,7 +48,7 @@ namespace UrdfPositioning {
                 inverseOriginQuaternion = Quaternion.Inverse(robotOriginTransform.rotation);
                 invertedQuaternion = true;
             }
-            return rotation * inverseOriginQuaternion;
+            return inverseOriginQuaternion * rotation;
         }
 
         // Start is called before the first frame update

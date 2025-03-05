@@ -11850,7 +11850,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   subTopic: /robot_current_pose
   pubTopic: /target_data
-  springStiffness: 150
+  springStiffness: 250
   rotationalStiffness: 30
   tint: {r: 1, g: 0.31132066, b: 0.31132066, a: 1}
   tintBlend: 0.3
@@ -13250,8 +13250,8 @@ MonoBehaviour:
   endTarget: {fileID: 1221183948}
   spring: {fileID: 785371645}
   pieMenu: {fileID: 1263018471}
-  speed: 0.25
-  waitDistanceThreshold: 2000
+  speed: 0.1
+  waitDistanceThreshold: 0.2
   resumeDistanceThreshold: 0.1
   waypointReachedThreshold: 0.05
 --- !u!4 &1359574593
@@ -18638,8 +18638,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f97bcca8974e4a34cacb8e2c606cac79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  subTopic: /robot_current_pose
   pubTopic: /target_data
+  endTrackerTransform: {fileID: 971606709}
   waypointPrefab: {fileID: 2366992338825510746, guid: 11ec6e18f2e854b4ab02e181a50ca0f6,
     type: 3}
   dynamicLine: {fileID: 10895853305283571}

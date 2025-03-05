@@ -5,24 +5,25 @@ using RosMessageTypes.Geometry;
 using RosMessageTypes.FrankaExampleControllers;
 using UrdfPositioning;
 using System.Collections.Generic;
+using System;
 
 public class WalkthroughManager : MonoBehaviour
 {
     ROSConnection ros;
 
-    public string subTopic = "/robot_current_pose";
     public string pubTopic = "/target_data";
+    public Transform endTrackerTransform;
     public GameObject waypointPrefab;
     public GameObject dynamicLine;
     [HideInInspector]
     public List<Waypoint> waypoints =  new();
     private bool initialised = false;
-    private bool connected = false;
     private bool active = true;
     private float zeroSpringWait = 0f;
     private readonly float zeroSpringWaitThresh = 1.0f;
-    private Vector3 position = Vector3.zero;
-    private Quaternion rotation = Quaternion.identity;
+    private EndTracker endTracker;
+    private Vector3 position { get => endTrackerTransform.position; set => endTrackerTransform.position = value; }
+    private Quaternion rotation { get => endTrackerTransform.rotation; set => endTrackerTransform.rotation = value; }
 
     private static Stack<IWaypointCommand> commands = new Stack<IWaypointCommand>();
     private static Stack<IWaypointCommand> undoneCommands = new Stack<IWaypointCommand>();  // Stack for undone commands. Cleared on new command added.
@@ -32,6 +33,7 @@ public class WalkthroughManager : MonoBehaviour
     {
         Initialise();
         dynamicLine.SetActive(false);
+        endTracker = endTrackerTransform.GetComponent<EndTracker>();
     }
 
     // Update is called once per frame
@@ -39,17 +41,12 @@ public class WalkthroughManager : MonoBehaviour
     {
         if (!initialised) Initialise();
 
-        // Set spring constant to zero
-        if (initialised && connected && active && zeroSpringWait < zeroSpringWaitThresh) {
+        // Set spring constant to near zero
+        if (initialised && endTracker.connected && active && zeroSpringWait < zeroSpringWaitThresh) {
             // [x, y, z, spring_k, damper_k]
             TargetPoseMsg msg = new();
-            msg.pose.position = new PointMsg();
-            msg.pose.orientation = new QuaternionMsg
-            {
-                x = 0,
-                y = 0,
-                z = 0
-            };
+            msg.pose.position = UrdfPositioner.VectorToRobotSpace(position).To<FLU>();
+            msg.pose.orientation = UrdfPositioner.RotateToRobotSpace(rotation).To<FLU>();
             msg.cartesian_stiffness = 0;
             msg.rotational_stiffness = 0;
 
@@ -62,16 +59,8 @@ public class WalkthroughManager : MonoBehaviour
     {
         // Initialise ROS
         ros = ROSConnection.GetOrCreateInstance();
-        ros.Subscribe<PoseStampedMsg>(subTopic, SubscribeCallback);
         ros.RegisterPublisher<TargetPoseMsg>(pubTopic);
         initialised = true;
-    }
-
-    void SubscribeCallback(PoseStampedMsg msg)
-    {
-        position = UrdfPositioner.VectorFromRobotSpace(msg.pose.position.From<FLU>());
-        rotation = UrdfPositioner.RotateFromRobotSpace(msg.pose.orientation.From<FLU>());
-        connected = true;
     }
 
     // public void OnDestroy()

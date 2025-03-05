@@ -46,8 +46,6 @@ public class ExecutionManager : MonoBehaviour
                 return ;
             }
 
-            Debug.Log("Executing");
-
             // Currently executing
             if (Vector3.Distance(endTarget.transform.position, endTracker.transform.position)
                 > waitDistanceThreshold) {
@@ -56,15 +54,11 @@ public class ExecutionManager : MonoBehaviour
                     return ;
             }
 
-            Debug.Log("Not waiting");
-
             // Check for unexpected finish (e.g. deletion of waypoints)
             if (activeIndex >= walkthroughManager.waypoints.Count) {
                 CancelExecution();
                 return ;
             }
-
-            Debug.Log("Not finished");
 
             TransformData activeTransformData = walkthroughManager.waypoints[activeIndex].GetWaypointTransform();
             if (Vector3.Distance(endTracker.transform.position, activeTransformData.position)
@@ -114,6 +108,7 @@ public class ExecutionManager : MonoBehaviour
         endTarget.SetActive(false);  // Deactivate target
         spring.SetActive(false);
         walkthroughManager.ActivateWalkthroughMode();  // Activate walkthrough
+        endTarget.GetComponent<EndTarget>().Reset();  // Reset end target position
     }
 
     public void ToggleExecution()

@@ -62,7 +62,7 @@ public class EndTarget : MonoBehaviour
 
     void SubscribeCallback(PoseStampedMsg msg)
     {
-        if (!initialPositionSet) {
+        if (!initialPositionSet && gameObject.activeSelf) {
             transform.SetPositionAndRotation(
                 UrdfPositioner.VectorFromRobotSpace(msg.pose.position.From<FLU>()),
                 UrdfPositioner.RotateFromRobotSpace(msg.pose.orientation.From<FLU>()));

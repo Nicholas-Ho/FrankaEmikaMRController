@@ -15,6 +15,7 @@ public class EndTracker : MonoBehaviour
     public float tintBlend = 0.3f;
 
     private bool initialised = false;
+    public bool connected { get; private set; } = false;
 
     // Start is called before the first frame update
     void Start()
@@ -51,6 +52,7 @@ public class EndTracker : MonoBehaviour
         transform.SetPositionAndRotation(
             UrdfPositioner.VectorFromRobotSpace(msg.pose.position.From<FLU>()),
             UrdfPositioner.RotateFromRobotSpace(msg.pose.orientation.From<FLU>()));
+        connected = true;
     }
 
     // public void OnDestroy()
