@@ -4,11 +4,7 @@ using Unity.Robotics.ROSTCPConnector.ROSGeometry;
 using RosMessageTypes.Geometry;
 using RosMessageTypes.FrankaExampleControllers;
 using UrdfPositioning;
-using System;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
-using UnityEngine.EventSystems;
-using System.Drawing;
 
 public class WalkthroughManager : MonoBehaviour
 {
@@ -19,32 +15,22 @@ public class WalkthroughManager : MonoBehaviour
     public GameObject waypointPrefab;
     public GameObject dynamicLine;
     [HideInInspector]
-    public List<GameObject> waypointObjects =  new List<GameObject>();
+    public List<Waypoint> waypoints =  new();
     private bool initialised = false;
     private bool connected = false;
+    private bool active = true;
     private float zeroSpringWait = 0f;
-    private float zeroSpringWaitThresh = 1.0f;
+    private readonly float zeroSpringWaitThresh = 1.0f;
     private Vector3 position = Vector3.zero;
     private Quaternion rotation = Quaternion.identity;
 
     private static Stack<IWaypointCommand> commands = new Stack<IWaypointCommand>();
     private static Stack<IWaypointCommand> undoneCommands = new Stack<IWaypointCommand>();  // Stack for undone commands. Cleared on new command added.
 
-    // Persistent across scenes
-    [HideInInspector]
-    public static List<TransformData> waypointTransformData =  new();
-
     // Start is called before the first frame update
     void Start()
     {
         Initialise();
-
-        // For reloading the programming scene
-        foreach (TransformData data in waypointTransformData) {
-            AddCommand(new AppendWaypointCommand(data.position, data.rotation, this), true);
-        }
-        waypointTransformData.Clear();
-
         dynamicLine.SetActive(false);
     }
 
@@ -53,8 +39,8 @@ public class WalkthroughManager : MonoBehaviour
     {
         if (!initialised) Initialise();
 
-        // Set spring constant to near zero
-        if (initialised && connected && zeroSpringWait < zeroSpringWaitThresh) {
+        // Set spring constant to zero
+        if (initialised && connected && active && zeroSpringWait < zeroSpringWaitThresh) {
             // [x, y, z, spring_k, damper_k]
             TargetPoseMsg msg = new();
             msg.pose.position = new PointMsg();
@@ -93,6 +79,14 @@ public class WalkthroughManager : MonoBehaviour
     //     ros.Unsubscribe(subTopic);
     // }
 
+    public void ActivateWalkthroughMode()
+    {
+        active = true;
+        zeroSpringWait = 0;
+    }
+
+    public void DeactivateWalkthroughMode() => active = false;
+
     public void AddWaypoint()
     {
         if (!initialised) return ;
@@ -121,21 +115,6 @@ public class WalkthroughManager : MonoBehaviour
     {
         AddCommand(new MoveWaypointCommand(index, startPos, startRot, endPos, endRot, this));
     }
-
-    public void BeginExecutionPhase()
-    {
-        if (!initialised) return ;
-        waypointTransformData.Clear();
-        foreach (GameObject waypoint in waypointObjects) {
-            waypointTransformData.Add(new TransformData(
-                waypoint.transform.position,
-                waypoint.GetComponent<Waypoint>().grabTransform.rotation
-            ));
-        }
-
-        SceneManager.LoadSceneAsync(2, LoadSceneMode.Single);
-    }
-
 
     // Commands infrastructure
     private void AddCommand(IWaypointCommand command, bool skipStack = false)

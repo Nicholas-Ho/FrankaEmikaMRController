@@ -79,6 +79,11 @@ public class Waypoint : MonoBehaviour
         transformer.AddCallbackListener(action);
     }
 
+    public TransformData GetWaypointTransform()
+    {
+        return new TransformData(transform.position, grabTransform.rotation);
+    }
+
     public void SetWaypointTransform(Vector3 position, Quaternion rotation)
     {
         if (!initialised) Initialise();

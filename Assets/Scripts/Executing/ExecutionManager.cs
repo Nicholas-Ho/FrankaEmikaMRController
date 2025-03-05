@@ -1,13 +1,14 @@
 using System.Buffers.Text;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 public class ExecutionManager : MonoBehaviour
 {
-
+    public WalkthroughManager walkthroughManager;
     public GameObject endTracker;
     public GameObject endTarget;
     public GameObject spring;
@@ -16,23 +17,26 @@ public class ExecutionManager : MonoBehaviour
     public float waitDistanceThreshold = 0.2f;
     public float resumeDistanceThreshold = 0.1f;
     public float waypointReachedThreshold = 0.05f;
-    private List<TransformData> waypoints;
-    private int activeWaypoint = 0;
+    private int activeIndex = 0;
     private bool waiting = false;
     private bool paused = false;
-    private bool finished = false;
+    private bool resetting = false;
+
+    private TextMeshPro[] tmps = {};
 
     // Start is called before the first frame update
     void Start()
     {
-        waypoints = WalkthroughManager.waypointTransformData;
-        activeWaypoint = 0;
+        activeIndex = 0;
+        paused = true;
+        endTarget.SetActive(false);
+        spring.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (endTarget.GetComponent<EndTarget>().IsReady() && !finished && !paused) {
+        if (endTarget.GetComponent<EndTarget>().IsReady() && !paused) {
             if (waiting) {
                 // If waiting and within start distance, resume
                 if (Vector3.Distance(endTarget.transform.position, endTracker.transform.position)
@@ -42,6 +46,8 @@ public class ExecutionManager : MonoBehaviour
                 return ;
             }
 
+            Debug.Log("Executing");
+
             // Currently executing
             if (Vector3.Distance(endTarget.transform.position, endTracker.transform.position)
                 > waitDistanceThreshold) {
@@ -50,46 +56,104 @@ public class ExecutionManager : MonoBehaviour
                     return ;
             }
 
-            if (Vector3.Distance(endTracker.transform.position, waypoints[activeWaypoint].position)
+            Debug.Log("Not waiting");
+
+            // Check for unexpected finish (e.g. deletion of waypoints)
+            if (activeIndex >= walkthroughManager.waypoints.Count) {
+                CancelExecution();
+                return ;
+            }
+
+            Debug.Log("Not finished");
+
+            TransformData activeTransformData = walkthroughManager.waypoints[activeIndex].GetWaypointTransform();
+            if (Vector3.Distance(endTracker.transform.position, activeTransformData.position)
                 < waypointReachedThreshold) {
                     // If waypoint reached, move to next waypoint
-                    activeWaypoint++;
+                    activeIndex++;
 
                     // If all waypoints have been traversed, finish
-                    if (activeWaypoint == waypoints.Count) {
-                        // endTarget.SetActive(false);
-                        // endTracker.SetActive(false);
-                        // spring.SetActive(false);
-                        finished = true;
+                    if (activeIndex >= walkthroughManager.waypoints.Count) {
+                        CancelExecution();
                         return ;
                     }
             }
 
-            Vector3 direction = (waypoints[activeWaypoint].position - endTarget.transform.position).normalized;
+            // Prevents oscillation about active waypoint if the target reaches without the tracker
+            // Make it a bit less forgiving than for the tracker
+            Vector3 difference = activeTransformData.position - endTarget.transform.position;
+            if (difference.magnitude < waypointReachedThreshold * 0.5) {
+                endTarget.transform.SetPositionAndRotation(
+                    activeTransformData.position, activeTransformData.rotation);
+                return ;
+            }
+
+            // Position
+            Vector3 direction = difference.normalized;
             Vector3 displacement = speed * Time.deltaTime * direction;
             endTarget.transform.position += displacement;
+
+            // Rotation
+            float distFraction = (speed * Time.deltaTime) / difference.magnitude;
+            endTarget.transform.rotation = Quaternion.Slerp(
+                endTarget.transform.rotation,
+                activeTransformData.rotation,
+                distFraction);
         }
+    }
+
+    private void ActivateExecutionMode()
+    {
+        endTarget.SetActive(true);  // Activate target
+        spring.SetActive(true);
+        walkthroughManager.DeactivateWalkthroughMode();  // Deactivate walkthrough
+    }
+
+    private void DeactivateExecutionMode()
+    {
+        endTarget.SetActive(false);  // Deactivate target
+        spring.SetActive(false);
+        walkthroughManager.ActivateWalkthroughMode();  // Activate walkthrough
     }
 
     public void ToggleExecution()
     {
         paused = !paused;
-        TextMeshPro[] tmps = pieMenu.GetComponentsInChildren<TextMeshPro>();
+        if (paused) {
+            // Paused
+            DeactivateExecutionMode();
+        } else {
+            // Resumed
+            ActivateExecutionMode();
+        }
+
+        // Setting text
+        if (tmps.Count() == 0) tmps = pieMenu.GetComponentsInChildren<TextMeshPro>(true);
         foreach (TextMeshPro tmp in tmps) {
             if (paused) {
+                // Paused
                 tmp.SetText(tmp.text.Replace("Pause", "Resume"));
             } else {
+                // Resumed
+                tmp.SetText(tmp.text.Replace("Start", "Pause"));
                 tmp.SetText(tmp.text.Replace("Resume", "Pause"));
             }
         }
     }
 
-    public void CancelExecution() => finished = true;
+    public void CancelExecution() {
+        paused = true;
+        activeIndex = 0;
 
-    public void ReturnToProgramming()
-    {
-        // End execution and return to programming
-        CancelExecution();
-        SceneManager.LoadScene(1, LoadSceneMode.Single);
+        // Return to walkthrough
+        endTarget.GetComponent<EndTarget>().Reset();
+        DeactivateExecutionMode();
+
+        // Reset text
+        if (tmps.Count() == 0) tmps = pieMenu.GetComponentsInChildren<TextMeshPro>();
+        foreach (TextMeshPro tmp in tmps) {
+            tmp.SetText(tmp.text.Replace("Pause", "Start"));
+            tmp.SetText(tmp.text.Replace("Resume", "Start"));
+        }
     }
 }

@@ -47,13 +47,12 @@ public class DynamicLine : MonoBehaviour
         if (!initialised) Initialise();
 
         refTransforms.Add(t);
+        lineRenderer.positionCount = refTransforms.Count;
 
         if (refTransforms.Count <= 1) return ;
         GameObject insertButton = Instantiate(insertButtonPrefab);
         insertButtons.Add(insertButton);
         insertButton.GetComponent<ProximityButton>().callback.AddListener(action);
-
-        lineRenderer.positionCount = refTransforms.Count;
     }
 
     public void PopLastReferenceTransform()
@@ -73,6 +72,10 @@ public class DynamicLine : MonoBehaviour
 
     public void ResetButtonState(int index)
     {
+        if (index < 0 || index >= insertButtons.Count) {
+            Debug.LogWarning("Index out-of-range while resetting insert button.");
+            return ;
+        }
         insertButtons[index].GetComponent<ProximityButton>().ResetState();
     }
 
