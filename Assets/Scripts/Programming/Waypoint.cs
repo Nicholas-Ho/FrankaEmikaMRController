@@ -7,8 +7,9 @@ using UnityEngine.EventSystems;
 
 public class Waypoint : MonoBehaviour
 {
-    public bool staticWaypoint = false;
     private GameObject textObject;
+    private GameObject deleteButtonObject;
+    private Transform headTransform;
     [HideInInspector]
     public Transform grabTransform { get; private set; }
     private ProximityButton deleteButton;
@@ -28,11 +29,15 @@ public class Waypoint : MonoBehaviour
     {
         textObject = transform.Find("TextContainer").gameObject;
         tmp = textObject.GetComponentInChildren<TextMeshPro>();
-        if (!staticWaypoint) {
-            grabTransform = transform.Find("Grabbable");
-            transformer = GetComponentInChildren<GrabFreeTransformerTracking>();
-            deleteButton = GetComponentInChildren<ProximityButton>();
-        }
+
+        grabTransform = transform.Find("Grabbable");
+        transformer = GetComponentInChildren<GrabFreeTransformerTracking>();
+
+        deleteButton = GetComponentInChildren<ProximityButton>();
+        deleteButtonObject = deleteButton.gameObject;
+
+        headTransform = GameObject.FindWithTag("MainCamera").transform;
+
         initialised = true;
     }
 
@@ -40,14 +45,12 @@ public class Waypoint : MonoBehaviour
     void Update()
     {
         // Update transform
-        if (!staticWaypoint) {
-            transform.position = grabTransform.position;
-            grabTransform.localPosition = Vector3.zero;
-        }
+        transform.position = grabTransform.position;
+        grabTransform.localPosition = Vector3.zero;
 
         // Look at camera
-        Vector3 headPos = GameObject.FindWithTag("MainCamera").transform.position;
-        textObject.transform.LookAt(headPos);
+        textObject.transform.LookAt(headTransform.position);
+        deleteButtonObject.transform.LookAt(headTransform.position);
 
         // Set text
         if (tmp.text != text) tmp.SetText(text);
@@ -88,7 +91,7 @@ public class Waypoint : MonoBehaviour
     {
         if (!initialised) Initialise();
         transform.position = position;
-        if (!staticWaypoint) grabTransform.rotation = rotation;
+        grabTransform.rotation = rotation;
     }
 
     public void ResetButtonState() { deleteButton.ResetState(); }

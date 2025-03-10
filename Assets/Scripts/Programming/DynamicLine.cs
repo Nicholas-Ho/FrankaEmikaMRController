@@ -10,6 +10,7 @@ public class DynamicLine : MonoBehaviour
     private List<Transform> refTransforms = new();
     private List<GameObject> insertButtons = new();
     private LineRenderer lineRenderer;
+    private Transform headTransform;
     private bool initialised = false;
 
     // Start is called before the first frame update
@@ -23,6 +24,7 @@ public class DynamicLine : MonoBehaviour
     {
         lineRenderer = gameObject.GetComponent<LineRenderer>();
         initialised = true;
+        headTransform = GameObject.FindWithTag("MainCamera").transform;
     }
 
     // Update is called once per frame
@@ -39,6 +41,7 @@ public class DynamicLine : MonoBehaviour
         for (int i=0; i<insertButtons.Count; i++) {
             insertButtons[i].transform.position =
                 (refTransforms[i].position + refTransforms[i+1].position) / 2;
+            insertButtons[i].transform.LookAt(headTransform.position);
         }
     }
 
