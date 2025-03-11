@@ -1,14 +1,10 @@
-using System.Buffers.Text;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 public class ExecutionManager : MonoBehaviour
 {
     public WalkthroughManager walkthroughManager;
+    public SafetyFields safetyFieldsManager;
     public GameObject endTracker;
     public GameObject endTarget;
     public GameObject spring;
@@ -22,6 +18,7 @@ public class ExecutionManager : MonoBehaviour
     private bool paused = false;
     private bool resetting = false;
 
+    private EndTarget endTargetComponent;
     private TextMeshPro[] tmps = {};
 
     // Start is called before the first frame update
@@ -29,14 +26,15 @@ public class ExecutionManager : MonoBehaviour
     {
         activeIndex = 0;
         paused = true;
-        endTarget.SetActive(false);
+        endTargetComponent = endTarget.GetComponent<EndTarget>();
+        endTargetComponent.SetTargetActive(false);
         spring.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (endTarget.GetComponent<EndTarget>().IsReady() && !paused) {
+        if (endTargetComponent.IsReady() && !paused) {
             if (waiting) {
                 // If waiting and within start distance, resume
                 if (Vector3.Distance(endTarget.transform.position, endTracker.transform.position)
@@ -88,7 +86,7 @@ public class ExecutionManager : MonoBehaviour
             endTarget.transform.position += displacement;
 
             // Rotation
-            float distFraction = (speed * Time.deltaTime) / difference.magnitude;
+            float distFraction = speed * Time.deltaTime / difference.magnitude;
             endTarget.transform.rotation = Quaternion.Slerp(
                 endTarget.transform.rotation,
                 activeTransformData.rotation,
@@ -98,17 +96,16 @@ public class ExecutionManager : MonoBehaviour
 
     private void ActivateExecutionMode()
     {
-        endTarget.SetActive(true);  // Activate target
+        endTargetComponent.SetTargetActive(true);
         spring.SetActive(true);
-        walkthroughManager.DeactivateWalkthroughMode();  // Deactivate walkthrough
+        safetyFieldsManager.SetFieldsActive(true);
     }
 
     private void DeactivateExecutionMode()
     {
-        endTarget.SetActive(false);  // Deactivate target
+        endTargetComponent.SetTargetActive(false);
         spring.SetActive(false);
-        walkthroughManager.ActivateWalkthroughMode();  // Activate walkthrough
-        endTarget.GetComponent<EndTarget>().Reset();  // Reset end target position
+        safetyFieldsManager.SetFieldsActive(false);
     }
 
     public void ToggleExecution()
@@ -141,7 +138,6 @@ public class ExecutionManager : MonoBehaviour
         activeIndex = 0;
 
         // Return to walkthrough
-        endTarget.GetComponent<EndTarget>().Reset();
         DeactivateExecutionMode();
 
         // Reset text

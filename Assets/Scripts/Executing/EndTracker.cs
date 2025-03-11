@@ -54,9 +54,4 @@ public class EndTracker : MonoBehaviour
             UrdfPositioner.RotateFromRobotSpace(msg.pose.orientation.From<FLU>()));
         connected = true;
     }
-
-    // public void OnDestroy()
-    // {
-    //     ros.Unsubscribe(subTopic);
-    // }
 }

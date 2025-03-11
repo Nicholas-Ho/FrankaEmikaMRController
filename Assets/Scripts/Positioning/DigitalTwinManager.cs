@@ -55,11 +55,6 @@ public class DigitalTwinManager : MonoBehaviour
         }
     }
 
-    // public void OnDestroy()
-    // {
-    //     ros.Unsubscribe(topic);
-    // }
-
     public float DegreesToRadians(float degrees)
     {
         return (float)Math.PI * degrees / 180;

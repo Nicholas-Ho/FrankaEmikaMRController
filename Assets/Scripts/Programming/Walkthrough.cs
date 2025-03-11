@@ -1,26 +1,13 @@
 using UnityEngine;
-using Unity.Robotics.ROSTCPConnector;
-using Unity.Robotics.ROSTCPConnector.ROSGeometry;
-using RosMessageTypes.Geometry;
-using RosMessageTypes.FrankaExampleControllers;
-using UrdfPositioning;
 using System.Collections.Generic;
-using System;
 
 public class WalkthroughManager : MonoBehaviour
 {
-    ROSConnection ros;
-
-    public string pubTopic = "/target_data";
     public Transform endTrackerTransform;
     public GameObject waypointPrefab;
     public GameObject dynamicLine;
     [HideInInspector]
     public List<Waypoint> waypoints =  new();
-    private bool initialised = false;
-    private bool active = true;
-    private float zeroSpringWait = 0f;
-    private readonly float zeroSpringWaitThresh = 1.0f;
     private EndTracker endTracker;
     private Vector3 position { get => endTrackerTransform.position; set => endTrackerTransform.position = value; }
     private Quaternion rotation { get => endTrackerTransform.rotation; set => endTrackerTransform.rotation = value; }
@@ -31,7 +18,6 @@ public class WalkthroughManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Initialise();
         dynamicLine.SetActive(false);
         endTracker = endTrackerTransform.GetComponent<EndTracker>();
     }
@@ -39,54 +25,19 @@ public class WalkthroughManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!initialised) Initialise();
-
-        // Set spring constant to near zero
-        if (initialised && endTracker.connected && active && zeroSpringWait < zeroSpringWaitThresh) {
-            // [x, y, z, spring_k, damper_k]
-            TargetPoseMsg msg = new();
-            msg.pose.position = UrdfPositioner.VectorToRobotSpace(position).To<FLU>();
-            msg.pose.orientation = UrdfPositioner.RotateToRobotSpace(rotation).To<FLU>();
-            msg.cartesian_stiffness = 0;
-            msg.rotational_stiffness = 0;
-
-            ros.Publish(pubTopic, msg);
-            zeroSpringWait += Time.deltaTime;
-        }
+        
     }
-
-    void Initialise()
-    {
-        // Initialise ROS
-        ros = ROSConnection.GetOrCreateInstance();
-        ros.RegisterPublisher<TargetPoseMsg>(pubTopic);
-        initialised = true;
-    }
-
-    // public void OnDestroy()
-    // {
-    //     ros.Unsubscribe(subTopic);
-    // }
-
-    public void ActivateWalkthroughMode()
-    {
-        active = true;
-        zeroSpringWait = 0;
-    }
-
-    public void DeactivateWalkthroughMode() => active = false;
 
     public void AddWaypoint()
     {
-        if (!initialised) return ;
-
-        // Add waypoint object at the robot position
+        if (!endTracker.connected) return ;
         AddCommand(new AppendWaypointCommand(position, rotation, this));
         // AddCommand(new AppendWaypointCommand(new Vector3(0,1,0), Quaternion.identity, this));  // For testing
     }
 
     public void InsertWaypoint(int index)
     {
+        if (!endTracker.connected) return ;
         AddCommand(new InsertWaypointCommand(index, position, rotation, this));
     }
 

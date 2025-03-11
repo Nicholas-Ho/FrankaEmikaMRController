@@ -12,13 +12,21 @@ public class EndTarget : MonoBehaviour
 
     public string subTopic = "/robot_current_pose";
     public string pubTopic = "/target_data";
-    public float springStiffness = 100;
-    public float rotationalStiffness = 30;
+    public float cartesianStiffnessTarget = 200;
+    public float rotationalStiffnessTarget = 60;
+    public float parameterRampTime = 0.1f;  // in seconds
     public Color tint;
     public float tintBlend = 0.3f;
 
+    private float cartesianStiffness = 0;
+    private float rotationalStiffness = 0;
+    private float cartesianStiffnessRamp;
+    private float rotationalStiffnessRamp;
+
     private bool initialised = false;
     private bool initialPositionSet = false;
+
+    private bool activeTarget = false;
 
     // Start is called before the first frame update
     void Start()
@@ -34,6 +42,9 @@ public class EndTarget : MonoBehaviour
                 renderer.material.color.a * (1-tintBlend) + tint.a * tintBlend
             );
         }
+
+        cartesianStiffnessRamp = cartesianStiffnessTarget / parameterRampTime;
+        rotationalStiffnessRamp = rotationalStiffnessTarget / parameterRampTime;
     }
 
     // Update is called once per frame
@@ -44,7 +55,25 @@ public class EndTarget : MonoBehaviour
             TargetPoseMsg msg = new();
             msg.pose.position = UrdfPositioner.VectorToRobotSpace(transform.position).To<FLU>();
             msg.pose.orientation = UrdfPositioner.RotateToRobotSpace(transform.rotation).To<FLU>();
-            msg.cartesian_stiffness = springStiffness;
+
+            // While switching, ramp transitions
+            if (activeTarget) {
+                cartesianStiffness = Math.Min(
+                    cartesianStiffness + Time.deltaTime * cartesianStiffnessRamp,
+                    cartesianStiffnessTarget);
+                rotationalStiffness = Math.Min(
+                    rotationalStiffness + Time.deltaTime * rotationalStiffnessRamp,
+                    rotationalStiffnessTarget);
+            } else {
+                cartesianStiffness = Math.Max(
+                    cartesianStiffness - Time.deltaTime * cartesianStiffnessRamp,
+                    0);
+                rotationalStiffness = Math.Max(
+                    rotationalStiffness - Time.deltaTime * rotationalStiffnessRamp,
+                    0);
+            }
+
+            msg.cartesian_stiffness = cartesianStiffness;
             msg.rotational_stiffness = rotationalStiffness;
 
             ros.Publish(pubTopic, msg);
@@ -62,7 +91,7 @@ public class EndTarget : MonoBehaviour
 
     void SubscribeCallback(PoseStampedMsg msg)
     {
-        if (!initialPositionSet && gameObject.activeSelf) {
+        if (!initialPositionSet || !activeTarget) {
             transform.SetPositionAndRotation(
                 UrdfPositioner.VectorFromRobotSpace(msg.pose.position.From<FLU>()),
                 UrdfPositioner.RotateFromRobotSpace(msg.pose.orientation.From<FLU>()));
@@ -70,11 +99,13 @@ public class EndTarget : MonoBehaviour
         }
     }
 
-    // public void OnDestroy()
-    // {
-    //     ros.Unsubscribe(subTopic);
-    // }
+    public void SetTargetActive(bool activate)
+    {
+        activeTarget = activate;
+        foreach (Transform child in transform) {
+            child.gameObject.SetActive(activate);
+        }
+    }
 
     public bool IsReady() => initialPositionSet;
-    public void Reset() => initialPositionSet = false;
 }

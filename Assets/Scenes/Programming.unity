@@ -11850,8 +11850,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   subTopic: /robot_current_pose
   pubTopic: /target_data
-  springStiffness: 250
-  rotationalStiffness: 30
+  cartesianStiffnessTarget: 200
+  rotationalStiffnessTarget: 50
+  parameterRampTime: 0.1
   tint: {r: 1, g: 0.31132066, b: 0.31132066, a: 1}
   tintBlend: 0.3
 --- !u!4 &1221183950
@@ -13226,6 +13227,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1359574593}
   - component: {fileID: 1359574592}
+  - component: {fileID: 1359574594}
   m_Layer: 0
   m_Name: Execution Manager
   m_TagString: Untagged
@@ -13246,14 +13248,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   walkthroughManager: {fileID: 1894974381}
+  safetyFieldsManager: {fileID: 1359574594}
   endTracker: {fileID: 971606705}
   endTarget: {fileID: 1221183948}
   spring: {fileID: 785371645}
   pieMenu: {fileID: 1263018471}
-  speed: 0.1
-  waitDistanceThreshold: 0.2
-  resumeDistanceThreshold: 0.1
-  waypointReachedThreshold: 0.05
+  speed: 0.15
+  waitDistanceThreshold: 0.1
+  resumeDistanceThreshold: 0.075
+  waypointReachedThreshold: 0.02
 --- !u!4 &1359574593
 Transform:
   m_ObjectHideFlags: 0
@@ -13269,6 +13272,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1359574594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359574591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5c8e1129064b0043b93f6e4bd1cbeb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pubTopic: /safety_fields
+  leftHandObject: {fileID: 1838476176}
+  rightHandObject: {fileID: 2091859876}
+  endTracker: {fileID: 971606709}
+  bodyFieldRadius: 0.3
+  handFieldRadius: 0.2
+  bodyFieldStrengthTarget: 300
+  handFieldStrengthTarget: 400
+  parameterRampTime: 0.1
+  smoothFilterTime: 0.25
 --- !u!1 &1366207036
 GameObject:
   m_ObjectHideFlags: 0
@@ -18638,7 +18663,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f97bcca8974e4a34cacb8e2c606cac79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pubTopic: /target_data
   endTrackerTransform: {fileID: 971606709}
   waypointPrefab: {fileID: 2366992338825510746, guid: 11ec6e18f2e854b4ab02e181a50ca0f6,
     type: 3}
