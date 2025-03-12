@@ -31,8 +31,8 @@ public class WalkthroughManager : MonoBehaviour
     public void AddWaypoint()
     {
         // if (!endTracker.connected) return ;
-        // AddCommand(new AppendWaypointCommand(position, rotation, this));
-        AddCommand(new AppendWaypointCommand(GameObject.FindWithTag("MainCamera").transform.position, Quaternion.identity, this));  // For testing
+        AddCommand(new AppendWaypointCommand(position, rotation, this));
+        // AddCommand(new AppendWaypointCommand(GameObject.FindWithTag("MainCamera").transform.position, Quaternion.identity, this));  // For testing
     }
 
     public void InsertWaypoint(int index)

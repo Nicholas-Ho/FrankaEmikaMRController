@@ -11850,7 +11850,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   subTopic: /robot_current_pose
   pubTopic: /target_data
-  cartesianStiffnessTarget: 200
+  cartesianStiffnessTarget: 250
   rotationalStiffnessTarget: 50
   parameterRampTime: 0.1
   tint: {r: 1, g: 0.31132066, b: 0.31132066, a: 1}
@@ -13256,7 +13256,7 @@ MonoBehaviour:
   speed: 0.15
   waitDistanceThreshold: 0.1
   resumeDistanceThreshold: 0.075
-  waypointReachedThreshold: 0.02
+  waypointReachedThreshold: 0.03
 --- !u!4 &1359574593
 Transform:
   m_ObjectHideFlags: 0
@@ -13288,9 +13288,9 @@ MonoBehaviour:
   leftHandObject: {fileID: 1838476176}
   rightHandObject: {fileID: 2091859876}
   endTracker: {fileID: 971606709}
-  bodyFieldRadius: 0.3
+  bodyFieldRadius: 0.15
   handFieldRadius: 0.2
-  bodyFieldStrengthTarget: 300
+  bodyFieldStrengthTarget: 600
   handFieldStrengthTarget: 400
   parameterRampTime: 0.1
 --- !u!1 &1366207036
