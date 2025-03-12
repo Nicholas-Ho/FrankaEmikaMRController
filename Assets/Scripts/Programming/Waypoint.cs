@@ -7,13 +7,12 @@ using UnityEngine.EventSystems;
 
 public class Waypoint : MonoBehaviour
 {
-    private GameObject textObject;
-    private GameObject deleteButtonObject;
+    private Transform textTransform;
+    private Transform deleteButtonTransform;
     private Transform headTransform;
+    private Transform centreTransform;
     [HideInInspector]
-    public Transform grabTransform { get; private set; }
     private ProximityButton deleteButton;
-    [HideInInspector]
     public GrabFreeTransformerTracking transformer { get; private set; }
     private TextMeshPro tmp;
     private string text = "";
@@ -27,14 +26,15 @@ public class Waypoint : MonoBehaviour
 
     void Initialise()
     {
-        textObject = transform.Find("TextContainer").gameObject;
-        tmp = textObject.GetComponentInChildren<TextMeshPro>();
+        centreTransform = transform.Find("WaypointCentre");
+        
+        tmp = transform.GetComponentInChildren<TextMeshPro>();
+        textTransform = tmp.transform.parent;
 
-        grabTransform = transform.Find("Grabbable");
         transformer = GetComponentInChildren<GrabFreeTransformerTracking>();
 
         deleteButton = GetComponentInChildren<ProximityButton>();
-        deleteButtonObject = deleteButton.gameObject;
+        deleteButtonTransform = deleteButton.transform;
 
         headTransform = GameObject.FindWithTag("MainCamera").transform;
 
@@ -44,13 +44,14 @@ public class Waypoint : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Update transform
-        transform.position = grabTransform.position;
-        grabTransform.localPosition = Vector3.zero;
+        if (!initialised) Initialise();
+
+        // Reset centre transform rotation
+        centreTransform.rotation = Quaternion.identity;
 
         // Look at camera
-        textObject.transform.LookAt(headTransform.position);
-        deleteButtonObject.transform.LookAt(headTransform.position);
+        textTransform.transform.LookAt(headTransform.position);
+        deleteButtonTransform.LookAt(headTransform.position);
 
         // Set text
         if (tmp.text != text) tmp.SetText(text);
@@ -84,14 +85,12 @@ public class Waypoint : MonoBehaviour
 
     public TransformData GetWaypointTransform()
     {
-        return new TransformData(transform.position, grabTransform.rotation);
+        return new TransformData(transform.position, transform.rotation);
     }
 
     public void SetWaypointTransform(Vector3 position, Quaternion rotation)
     {
-        if (!initialised) Initialise();
-        transform.position = position;
-        grabTransform.rotation = rotation;
+        transform.SetPositionAndRotation(position, rotation);
     }
 
     public void ResetButtonState() { deleteButton.ResetState(); }

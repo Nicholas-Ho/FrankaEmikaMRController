@@ -13293,7 +13293,6 @@ MonoBehaviour:
   bodyFieldStrengthTarget: 300
   handFieldStrengthTarget: 400
   parameterRampTime: 0.1
-  smoothFilterTime: 0.25
 --- !u!1 &1366207036
 GameObject:
   m_ObjectHideFlags: 0
@@ -18664,7 +18663,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   endTrackerTransform: {fileID: 971606709}
-  waypointPrefab: {fileID: 2366992338825510746, guid: 11ec6e18f2e854b4ab02e181a50ca0f6,
+  waypointPrefab: {fileID: 8721932602772935595, guid: 66436e3bbeecc3d42a586b0a0df9cde3,
     type: 3}
   dynamicLine: {fileID: 10895853305283571}
   waypoints: []
