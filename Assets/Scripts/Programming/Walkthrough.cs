@@ -12,8 +12,8 @@ public class WalkthroughManager : MonoBehaviour
     private Vector3 position { get => endTrackerTransform.position; set => endTrackerTransform.position = value; }
     private Quaternion rotation { get => endTrackerTransform.rotation; set => endTrackerTransform.rotation = value; }
 
-    private static Stack<IWaypointCommand> commands = new Stack<IWaypointCommand>();
-    private static Stack<IWaypointCommand> undoneCommands = new Stack<IWaypointCommand>();  // Stack for undone commands. Cleared on new command added.
+    private static Stack<IWaypointCommand> commands = new();
+    private static Stack<IWaypointCommand> undoneCommands = new();  // Stack for undone commands. Cleared on new command added.
 
     // Start is called before the first frame update
     void Start()
@@ -22,15 +22,9 @@ public class WalkthroughManager : MonoBehaviour
         endTracker = endTrackerTransform.GetComponent<EndTracker>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void AddWaypoint()
     {
-        // if (!endTracker.connected) return ;
+        if (!endTracker.connected) return ;
         AddCommand(new AppendWaypointCommand(position, rotation, this));
         // AddCommand(new AppendWaypointCommand(GameObject.FindWithTag("MainCamera").transform.position, Quaternion.identity, this));  // For testing
     }
@@ -57,10 +51,9 @@ public class WalkthroughManager : MonoBehaviour
     }
 
     // Commands infrastructure
-    private void AddCommand(IWaypointCommand command, bool skipStack = false)
+    private void AddCommand(IWaypointCommand command)
     {
         command.Execute();
-        if (skipStack) return ;  // Option to skip using the command stack
         commands.Push(command);
         if (undoneCommands.Count > 0) undoneCommands.Clear();
     }

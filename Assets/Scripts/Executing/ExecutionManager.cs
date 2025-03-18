@@ -7,7 +7,6 @@ public class ExecutionManager : MonoBehaviour
     public SafetyFields safetyFieldsManager;
     public GameObject endTracker;
     public GameObject endTarget;
-    public GameObject spring;
     public GameObject pieMenu;  // For setting text
     public float speed = 0.1f; // per second
     public float waitDistanceThreshold = 0.2f;
@@ -16,7 +15,6 @@ public class ExecutionManager : MonoBehaviour
     private int activeIndex = 0;
     private bool waiting = false;
     private bool paused = false;
-    private bool resetting = false;
 
     private EndTarget endTargetComponent;
     private TextMeshPro[] tmps = {};
@@ -28,7 +26,6 @@ public class ExecutionManager : MonoBehaviour
         paused = true;
         endTargetComponent = endTarget.GetComponent<EndTarget>();
         endTargetComponent.SetTargetActive(false);
-        spring.SetActive(false);
     }
 
     // Update is called once per frame
@@ -97,14 +94,12 @@ public class ExecutionManager : MonoBehaviour
     private void ActivateExecutionMode()
     {
         endTargetComponent.SetTargetActive(true);
-        spring.SetActive(true);
         safetyFieldsManager.SetFieldsActive(true);
     }
 
     private void DeactivateExecutionMode()
     {
         endTargetComponent.SetTargetActive(false);
-        spring.SetActive(false);
         safetyFieldsManager.SetFieldsActive(false);
     }
 

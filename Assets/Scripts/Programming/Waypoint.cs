@@ -65,7 +65,7 @@ public class Waypoint : MonoBehaviour
             text = "Start";
             return ;
         }
-        text = i.ToString();
+        text = ""; //i.ToString();
     }
     
     public int GetIndex() { return index; }

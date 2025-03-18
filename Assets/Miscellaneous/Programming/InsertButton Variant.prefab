@@ -46,6 +46,11 @@ PrefabInstance:
         type: 3}
     - target: {fileID: 6062199399604880572, guid: 39f23459b0f8ec34e9bb360b8540f6d7,
         type: 3}
+      propertyPath: m_Color.a
+      value: 0.19607843
+      objectReference: {fileID: 0}
+    - target: {fileID: 6062199399604880572, guid: 39f23459b0f8ec34e9bb360b8540f6d7,
+        type: 3}
       propertyPath: m_SortingLayer
       value: 0
       objectReference: {fileID: 0}
@@ -193,6 +198,11 @@ PrefabInstance:
         type: 3}
       propertyPath: pressColour.r
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7621845441353563172, guid: 39f23459b0f8ec34e9bb360b8540f6d7,
+        type: 3}
+      propertyPath: defaultColour.a
+      value: 0.19607843
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

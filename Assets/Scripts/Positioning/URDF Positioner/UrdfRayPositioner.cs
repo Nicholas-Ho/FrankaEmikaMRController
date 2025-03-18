@@ -28,14 +28,14 @@ namespace UrdfPositioning {
         public void Update()
         {
             bool cast = (
-                OVRInput.GetControllerPositionTracked(OVRInput.Controller.RTouch) &&
-                OVRInput.GetControllerOrientationTracked(OVRInput.Controller.RTouch)
+                OVRInput.GetControllerPositionTracked(OVRInput.Controller.RHand) &&
+                OVRInput.GetControllerOrientationTracked(OVRInput.Controller.RHand)
             );
             urdfModel.SetActive(true);
             visibleRay.enabled = cast;
             if (cast) {
-                Vector3 controllerPos = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
-                Vector3 controllerForward = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RTouch) *
+                Vector3 controllerPos = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RHand);
+                Vector3 controllerForward = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RHand) *
                     Vector3.forward;
 
                 // Cast ray
@@ -56,7 +56,7 @@ namespace UrdfPositioning {
                 visibleRay.SetPosition(1, endPoint);
 
                 // Finalise position on "B" button press
-                if (OVRInput.GetDown(OVRInput.RawButton.B) || selected) {
+                if (selected) {
                     TransformData data = new TransformData(urdfModel.transform);
                     finaliseTransform(data);
                     visibleRay.enabled = false;

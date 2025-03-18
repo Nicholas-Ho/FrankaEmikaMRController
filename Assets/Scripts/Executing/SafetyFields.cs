@@ -18,9 +18,9 @@ public class SafetyFields : MonoBehaviour
 
     public float bodyFieldRadius = 0.5f;
     public float handFieldRadius = 0.1f;
-    public float bodyFieldStrengthTarget = 200;
-    public float handFieldStrengthTarget = 300;
-    public float parameterRampTime = 0.1f;
+    public double bodyFieldStrengthTarget = 200;
+    public double handFieldStrengthTarget = 300;
+    public double parameterRampTime = 0.1f;
 
     private Transform headTransform;
     private OVRHand leftHand;
@@ -31,10 +31,10 @@ public class SafetyFields : MonoBehaviour
     private Vector3 bodyFieldCentre = new();
     private Vector3 leftHandFieldCentre = new();
     private Vector3 rightHandFieldCentre = new();
-    private float bodyFieldStrength = 0;
-    private float handFieldStrength = 0;
-    private float bodyStrengthRamp;
-    private float handStrengthRamp;
+    private double bodyFieldStrength = 0;
+    private double handFieldStrength = 0;
+    private double bodyStrengthRamp;
+    private double handStrengthRamp;
 
     private bool initialised = false;
     private bool activeFields = false;
