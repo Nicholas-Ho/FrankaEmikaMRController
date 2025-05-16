@@ -32,7 +32,8 @@ public class SafetyFields : MonoBehaviour
     private Vector3 leftHandFieldCentre = new();
     private Vector3 rightHandFieldCentre = new();
     private double bodyFieldStrength = 0;
-    private double handFieldStrength = 0;
+    private double leftHandFieldStrength = 0;
+    private double rightHandFieldStrength = 0;
     private double bodyStrengthRamp;
     private double handStrengthRamp;
 
@@ -72,9 +73,12 @@ public class SafetyFields : MonoBehaviour
             headTransform.position.z
         );
 
-        if (leftHand.IsActive() && leftHand.IsTracked) 
+        bool leftValid = leftHand.IsActive() && leftHand.IsTracked;
+        bool rightValid = rightHand.IsActive() && rightHand.IsTracked;
+
+        if (leftValid) 
             leftHandFieldCentre = HandUtilities.GetHandTransform(leftHandSkeleton).position;
-        if (rightHand.IsActive() && rightHand.IsTracked) 
+        if (rightValid) 
             rightHandFieldCentre = HandUtilities.GetHandTransform(rightHandSkeleton).position;
 
         // While switching, ramp transitions
@@ -82,15 +86,36 @@ public class SafetyFields : MonoBehaviour
             bodyFieldStrength = Math.Min(
                 bodyFieldStrength + Time.deltaTime * bodyStrengthRamp,
                 bodyFieldStrengthTarget);
-            handFieldStrength = Math.Min(
-                handFieldStrength + Time.deltaTime * handStrengthRamp,
-                handFieldStrengthTarget);
+
+            // If no valid tracking, reset strength to zero
+            if (leftValid) {
+                leftHandFieldStrength = Math.Min(
+                    leftHandFieldStrength + Time.deltaTime * handStrengthRamp,
+                    handFieldStrengthTarget);
+            } else {
+                leftHandFieldStrength = Math.Max(
+                    leftHandFieldStrength - Time.deltaTime * handStrengthRamp,
+                    0);
+            }
+            
+            if (rightValid) {
+                rightHandFieldStrength = Math.Min(
+                    rightHandFieldStrength + Time.deltaTime * handStrengthRamp,
+                    handFieldStrengthTarget);
+            } else {
+                rightHandFieldStrength = Math.Max(
+                    rightHandFieldStrength - Time.deltaTime * handStrengthRamp,
+                    0);
+            }
         } else {
             bodyFieldStrength = Math.Max(
                 bodyFieldStrength - Time.deltaTime * bodyStrengthRamp,
                 0);
-            handFieldStrength = Math.Max(
-                handFieldStrength - Time.deltaTime * handStrengthRamp,
+            leftHandFieldStrength = Math.Max(
+                leftHandFieldStrength - Time.deltaTime * handStrengthRamp,
+                0);
+            rightHandFieldStrength = Math.Max(
+                rightHandFieldStrength - Time.deltaTime * handStrengthRamp,
                 0);
         }
 
@@ -101,10 +126,10 @@ public class SafetyFields : MonoBehaviour
         msg.body.strength = bodyFieldStrength;
         msg.left_hand.centre = UrdfPositioner.VectorToRobotSpace(leftHandFieldCentre).To<FLU>();
         msg.left_hand.active_radius = handFieldRadius;
-        msg.left_hand.strength = handFieldStrength;
+        msg.left_hand.strength = leftHandFieldStrength;
         msg.right_hand.centre = UrdfPositioner.VectorToRobotSpace(rightHandFieldCentre).To<FLU>();
         msg.right_hand.active_radius = handFieldRadius;
-        msg.right_hand.strength = handFieldStrength;
+        msg.right_hand.strength = rightHandFieldStrength;
 
         ros.Publish(pubTopic, msg);
     }
