@@ -146,6 +146,7 @@ namespace UrdfPositioning {
                         position = anchorObject.transform.position,
                         rotation = anchorObject.transform.rotation
                     };
+                    Destroy(anchorObject.gameObject);
                     Debug.Log("Anchor loaded");
                     StartConfirmState(data);
                 }

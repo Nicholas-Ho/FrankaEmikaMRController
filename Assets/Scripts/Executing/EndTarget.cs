@@ -102,9 +102,9 @@ public class EndTarget : MonoBehaviour
     public void SetTargetActive(bool activate)
     {
         activeTarget = activate;
-        foreach (Transform child in transform) {
-            child.gameObject.SetActive(activate);
-        }
+        // foreach (Transform child in transform) {
+        //     child.gameObject.SetActive(activate);
+        // }
     }
 
     public bool IsReady() => initialPositionSet;
