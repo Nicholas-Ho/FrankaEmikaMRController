@@ -96,13 +96,13 @@ public class SafetyFields : MonoBehaviour
 
         // Publish
         SafetyRepulsiveFieldsMsg msg = new();
-        msg.body.centre = UrdfPositioner.VectorToRobotSpace(bodyFieldCentre).To<FLU>();
+        msg.body.centre = URDFPointCloudManager.VectorToRobotSpace(bodyFieldCentre).To<FLU>();
         msg.body.active_radius = bodyFieldRadius;
         msg.body.strength = bodyFieldStrength;
-        msg.left_hand.centre = UrdfPositioner.VectorToRobotSpace(leftHandFieldCentre).To<FLU>();
+        msg.left_hand.centre = URDFPointCloudManager.VectorToRobotSpace(leftHandFieldCentre).To<FLU>();
         msg.left_hand.active_radius = handFieldRadius;
         msg.left_hand.strength = handFieldStrength;
-        msg.right_hand.centre = UrdfPositioner.VectorToRobotSpace(rightHandFieldCentre).To<FLU>();
+        msg.right_hand.centre = URDFPointCloudManager.VectorToRobotSpace(rightHandFieldCentre).To<FLU>();
         msg.right_hand.active_radius = handFieldRadius;
         msg.right_hand.strength = handFieldStrength;
 

@@ -16,7 +16,6 @@ public class ExecutionManager : MonoBehaviour
     private int activeIndex = 0;
     private bool waiting = false;
     private bool paused = false;
-    private bool resetting = false;
 
     private EndTarget endTargetComponent;
     private TextMeshPro[] tmps = {};

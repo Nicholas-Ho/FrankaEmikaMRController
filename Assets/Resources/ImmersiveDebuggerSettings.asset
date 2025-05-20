@@ -18,7 +18,7 @@ MonoBehaviour:
     - TestSceneUsage
     - UIEditorSetup
   immersiveDebuggerEnabled: 1
-  immersiveDebuggerDisplayAtStartup: 0
+  immersiveDebuggerDisplayAtStartup: 1
   immersiveDebuggerToggleDisplayButton: 2
   showInspectors: 1
   showConsole: 1
@@ -26,7 +26,7 @@ MonoBehaviour:
   rotateOverride: 0
   showInfoLog: 1
   showWarningLog: 0
-  showErrorLog: 1
+  showErrorLog: 0
   collapsedIdenticalLogEntries: 0
   maximumNumberOfLogEntries: 1000
   panelDistance: 1

@@ -53,8 +53,8 @@ public class EndTarget : MonoBehaviour
         if (!initialised) Initialise();
         if (initialised && initialPositionSet) {
             TargetPoseMsg msg = new();
-            msg.pose.position = UrdfPositioner.VectorToRobotSpace(transform.position).To<FLU>();
-            msg.pose.orientation = UrdfPositioner.RotateToRobotSpace(transform.rotation).To<FLU>();
+            msg.pose.position = URDFPointCloudManager.VectorToRobotSpace(transform.position).To<FLU>();
+            msg.pose.orientation = URDFPointCloudManager.RotateToRobotSpace(transform.rotation).To<FLU>();
 
             // While switching, ramp transitions
             if (activeTarget) {
@@ -93,8 +93,8 @@ public class EndTarget : MonoBehaviour
     {
         if (!initialPositionSet || !activeTarget) {
             transform.SetPositionAndRotation(
-                UrdfPositioner.VectorFromRobotSpace(msg.pose.position.From<FLU>()),
-                UrdfPositioner.RotateFromRobotSpace(msg.pose.orientation.From<FLU>()));
+                URDFPointCloudManager.VectorFromRobotSpace(msg.pose.position.From<FLU>()),
+                URDFPointCloudManager.RotateFromRobotSpace(msg.pose.orientation.From<FLU>()));
             initialPositionSet = true;
         }
     }
