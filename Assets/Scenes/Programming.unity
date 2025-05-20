@@ -11720,8 +11720,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   subTopic: /robot_current_pose
   pubTopic: /target_data
-  cartesianStiffnessTarget: 200
-  rotationalStiffnessTarget: 50
+  cartesianStiffnessTarget: 250
+  rotationalStiffnessTarget: 40
   parameterRampTime: 0.1
   tint: {r: 1, g: 0.31132066, b: 0.31132066, a: 1}
   tintBlend: 0.3
