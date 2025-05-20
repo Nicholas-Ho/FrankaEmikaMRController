@@ -50,8 +50,8 @@ public class EndTracker : MonoBehaviour
     void SubscribeCallback(PoseStampedMsg msg)
     {
         transform.SetPositionAndRotation(
-            URDFPointCloudManager.VectorFromRobotSpace(msg.pose.position.From<FLU>()),
-            URDFPointCloudManager.RotateFromRobotSpace(msg.pose.orientation.From<FLU>()));
+            UrdfPositioner.VectorFromRobotSpace(msg.pose.position.From<FLU>()),
+            UrdfPositioner.RotateFromRobotSpace(msg.pose.orientation.From<FLU>()));
         connected = true;
     }
 }

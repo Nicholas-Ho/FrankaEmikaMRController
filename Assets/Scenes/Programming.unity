@@ -6852,7 +6852,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &785371646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13256,7 +13256,7 @@ MonoBehaviour:
   speed: 0.15
   waitDistanceThreshold: 0.1
   resumeDistanceThreshold: 0.075
-  waypointReachedThreshold: 0.03
+  waypointReachedThreshold: 0.003
 --- !u!4 &1359574593
 Transform:
   m_ObjectHideFlags: 0
@@ -14041,6 +14041,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: FrankaHandPrefab
+      objectReference: {fileID: 0}
+    - target: {fileID: 3589636471902332685, guid: 13cfd7c1dd87533408ef975fec531ca0,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5662649644313977685, guid: 13cfd7c1dd87533408ef975fec531ca0,
         type: 3}
@@ -15379,6 +15384,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: FrankaHandPrefab
+      objectReference: {fileID: 0}
+    - target: {fileID: 3589636471902332685, guid: 13cfd7c1dd87533408ef975fec531ca0,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5662649644313977685, guid: 13cfd7c1dd87533408ef975fec531ca0,
         type: 3}

@@ -23,13 +23,15 @@ public class SpatialAnchorManager : MonoBehaviour
     }
 
     // Create and save spatial anchor
-    public void CreateAndSaveAnchor(TransformData transformData, string key)
+    public void CreateAndSaveAnchor(TransformData transformData, string key, Action onSuccessCallback)
     {
-        OVRSpatialAnchor anchor = Instantiate(anchorPrefab, transformData.position, transformData.rotation);
-        StartCoroutine(SaveAnchor(anchor, key));
+        GameObject anchorObject = new();
+        anchorObject.transform.SetPositionAndRotation(transformData.position, transformData.rotation);
+        OVRSpatialAnchor anchor = anchorObject.AddComponent<OVRSpatialAnchor>();
+        StartCoroutine(SaveAnchor(anchor, key, onSuccessCallback));
     }
 
-    private IEnumerator SaveAnchor(OVRSpatialAnchor anchor, string key)
+    private IEnumerator SaveAnchor(OVRSpatialAnchor anchor, string key, Action onSuccessCallback)
     {
         // Wait for anchor to be created and localised
         yield return new WaitUntil(() => !anchor.Created && !anchor.Localized);
@@ -43,11 +45,13 @@ public class SpatialAnchorManager : MonoBehaviour
                     PlayerPrefs.SetString(key, anchor.Uuid.ToString());
                     PlayerPrefs.Save();
                     Debug.Log("Anchor saved.");
+                    onSuccessCallback();
                 }
                 else
                 {
                     Debug.LogWarning("Could not save anchor.");
                 }
+                Destroy(anchor.gameObject);
             },
         anchor);
     }
@@ -75,5 +79,17 @@ public class SpatialAnchorManager : MonoBehaviour
         {
             onLoadFailureCallback();
         }
+    }
+
+    public async Task EraseAnchor(string key)
+    {
+        if (!PlayerPrefs.HasKey(key)) return;
+        string anchorUuidValue = PlayerPrefs.GetString(key);
+        await LoadAnchor(key, (success, anchor) =>
+        {
+            OVRSpatialAnchor anchorObject = new GameObject().AddComponent<OVRSpatialAnchor>();
+            anchor.BindTo(anchorObject);
+            anchorObject.EraseAnchorAsync();
+        }, () => { });
     }
 }
