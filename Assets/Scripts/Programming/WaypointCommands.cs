@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 
-// Command structs for use with WalkthroughManager. Allows undo and redo metacommands
-interface IWaypointCommand { void Execute(); void Unexecute(); }
+// Command objects for use with WalkthroughManager. Allows undo and redo metacommands
+abstract class WaypointCommand { public abstract void Execute(); public abstract void Unexecute(); }
 
-struct AppendWaypointCommand : IWaypointCommand
+class AppendWaypointCommand : WaypointCommand
 {
     private Vector3 position;
     private Quaternion rotation;
@@ -18,18 +18,18 @@ struct AppendWaypointCommand : IWaypointCommand
         manager = wm;
     }
 
-    public void Execute()
+    public override void Execute()
     {
         WaypointCommandUtilities.AppendWaypoint(position, rotation, manager);
     }
 
-    public void Unexecute()
+    public override void Unexecute()
     {
         WaypointCommandUtilities.PopLastWaypoint(manager);
     }
 }
 
-struct InsertWaypointCommand : IWaypointCommand
+class InsertWaypointCommand : WaypointCommand
 {
     private int index;
     private Vector3 position;
@@ -42,18 +42,18 @@ struct InsertWaypointCommand : IWaypointCommand
         manager = wm;
     }
 
-    public void Execute()
+    public override void Execute()
     {
         WaypointCommandUtilities.InsertWaypointAtIndex(index, position, rotation, manager);
     }
 
-    public void Unexecute()
+    public override void Unexecute()
     {
         WaypointCommandUtilities.DeleteWaypointAtIndex(index, ref position, ref rotation, manager);
     }
 }
 
-struct DeleteWaypointCommand : IWaypointCommand
+class DeleteWaypointCommand : WaypointCommand
 {
     private int index;
     private Vector3 position;
@@ -68,18 +68,18 @@ struct DeleteWaypointCommand : IWaypointCommand
         rotation = Quaternion.identity;
     }
 
-    public void Execute()
+    public override void Execute()
     {
         WaypointCommandUtilities.DeleteWaypointAtIndex(index, ref position, ref rotation, manager);
     }
 
-    public void Unexecute()
+    public override void Unexecute()
     {
         WaypointCommandUtilities.InsertWaypointAtIndex(index, position, rotation, manager);
     }
 }
 
-struct MoveWaypointCommand : IWaypointCommand
+class MoveWaypointCommand : WaypointCommand
 {
     private int index;
     private Vector3 startPosition;
@@ -96,18 +96,18 @@ struct MoveWaypointCommand : IWaypointCommand
         endRotation = endRot;
     }
 
-    public void Execute()
+    public override void Execute()
     {
         manager.waypoints[index].SetWaypointTransform(endPosition, endRotation);
     }
 
-    public void Unexecute()
+    public override void Unexecute()
     {
         manager.waypoints[index].SetWaypointTransform(startPosition, startRotation);
     }
 }
 
-struct WaypointCommandUtilities
+class WaypointCommandUtilities
 {
     public static void AppendWaypoint(Vector3 position, Quaternion rotation, WalkthroughManager manager)
     {
