@@ -11720,8 +11720,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   subTopic: /robot_current_pose
   pubTopic: /target_data
-  cartesianStiffnessTarget: 250
-  rotationalStiffnessTarget: 40
+  cartesianStiffnessTarget: 150
+  rotationalStiffnessTarget: 30
   parameterRampTime: 0.1
   tint: {r: 1, g: 0.31132066, b: 0.31132066, a: 1}
   tintBlend: 0.3
@@ -13122,10 +13122,10 @@ MonoBehaviour:
   endTracker: {fileID: 971606705}
   endTarget: {fileID: 1221183948}
   pieMenu: {fileID: 1263018471}
-  speed: 0.25
-  waitDistanceThreshold: 0.1
-  resumeDistanceThreshold: 0.075
-  waypointReachedThreshold: 0.01
+  speed: 0.3
+  waitDistanceThreshold: 0.12
+  resumeDistanceThreshold: 0.11
+  waypointReachedThreshold: 0.03
 --- !u!4 &1359574593
 Transform:
   m_ObjectHideFlags: 0
@@ -13159,8 +13159,8 @@ MonoBehaviour:
   endTracker: {fileID: 971606709}
   bodyFieldRadius: 0.3
   handFieldRadius: 0.3
-  bodyFieldStrengthTarget: 0.08
-  handFieldStrengthTarget: 0.08
+  bodyFieldStrengthTarget: 0.2
+  handFieldStrengthTarget: 0.2
   parameterRampTime: 0.1
 --- !u!1 &1366207036
 GameObject:
