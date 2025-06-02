@@ -12,8 +12,8 @@ public class WalkthroughManager : MonoBehaviour
     private Vector3 position { get => endTrackerTransform.position; set => endTrackerTransform.position = value; }
     private Quaternion rotation { get => endTrackerTransform.rotation; set => endTrackerTransform.rotation = value; }
 
-    private static Stack<IWaypointCommand> commands = new();
-    private static Stack<IWaypointCommand> undoneCommands = new();  // Stack for undone commands. Cleared on new command added.
+    private static Stack<WaypointCommand> commands = new();
+    private static Stack<WaypointCommand> undoneCommands = new();  // Stack for undone commands. Cleared on new command added.
 
     // Start is called before the first frame update
     void Start()
@@ -51,7 +51,7 @@ public class WalkthroughManager : MonoBehaviour
     }
 
     // Commands infrastructure
-    private void AddCommand(IWaypointCommand command)
+    private void AddCommand(WaypointCommand command)
     {
         command.Execute();
         commands.Push(command);
@@ -61,7 +61,7 @@ public class WalkthroughManager : MonoBehaviour
     public void UndoCommand()
     {
         if (commands.Count == 0) return ;
-        IWaypointCommand command = commands.Peek();
+        WaypointCommand command = commands.Peek();
         command.Unexecute();
         commands.Pop();
         undoneCommands.Push(command);
@@ -70,7 +70,7 @@ public class WalkthroughManager : MonoBehaviour
     public void RedoCommand()
     {
         if (undoneCommands.Count == 0) return ;
-        IWaypointCommand command = undoneCommands.Peek();
+        WaypointCommand command = undoneCommands.Peek();
         command.Execute();
         undoneCommands.Pop();
         commands.Push(command);
